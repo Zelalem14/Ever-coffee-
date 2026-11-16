@@ -3,11 +3,12 @@ import { Plus, Search, Edit3, Trash2, Coffee, CheckCircle2, XCircle } from 'luci
 import { api } from '../../api/api';
 import { useMenu } from '../../context/MenuContext';
 import { useToast } from '../../context/ToastContext';
+import { getImageUrl } from '../../utils/imageUrl';
 import ProductModal from './ProductModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
 export default function AdminProductsTable() {
-  const { products, categories, refreshData } = useMenu();
+  const { products, categories, refreshData, removeProduct, upsertProduct } = useMenu();
   const { addToast } = useToast();
 
   const [search, setSearch] = useState('');
@@ -59,8 +60,10 @@ export default function AdminProductsTable() {
 
   const handleToggleAvailability = async (product) => {
     try {
-      await api.toggleProductAvailability(product.id);
-      const newStatus = product.is_available === 1 ? 'Out of Stock' : 'In Stock';
+      const res = await api.toggleProductAvailability(product.id);
+      const newAvail = res?.is_available !== undefined ? res.is_available : (product.is_available === 1 ? 0 : 1);
+      upsertProduct({ ...product, is_available: newAvail, updated_at: new Date().toISOString() });
+      const newStatus = newAvail === 1 ? 'In Stock' : 'Out of Stock';
       addToast(`"${product.name}" marked as ${newStatus}`, 'success');
       refreshData();
     } catch (err) {
@@ -88,10 +91,11 @@ export default function AdminProductsTable() {
     try {
       setDeleting(true);
       await api.deleteProduct(productToDelete.id);
+      removeProduct(productToDelete.id);
       addToast(`Deleted "${productToDelete.name}" successfully`, 'success');
       setDeleteModalOpen(false);
       setProductToDelete(null);
-      refreshData();
+      await refreshData();
     } catch (err) {
       addToast(err.message || 'Failed to delete product', 'error');
     } finally {
@@ -190,7 +194,7 @@ export default function AdminProductsTable() {
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200 dark:border-[#3A2012]">
                     {product.image_url ? (
                       <img
-                        src={product.image_url}
+                        src={getImageUrl(product.image_url, product.updated_at)}
                         alt={product.name}
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
@@ -309,7 +313,7 @@ export default function AdminProductsTable() {
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200 dark:border-[#3A2012]">
                             {product.image_url ? (
                               <img
-                                src={product.image_url}
+                                src={getImageUrl(product.image_url, product.updated_at)}
                                 alt={product.name}
                                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}

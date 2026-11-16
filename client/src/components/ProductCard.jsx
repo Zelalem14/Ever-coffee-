@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Flame, Star, Eye } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 export default function ProductCard({ product }) {
   const { setSelectedProduct } = useMenu();
@@ -20,7 +21,7 @@ export default function ProductCard({ product }) {
       {/* Product Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
         <img
-          src={product.image_url}
+          src={getImageUrl(product.image_url, product.updated_at)}
           alt={product.name}
           loading="lazy"
           className={`w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500 ${

@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { validateClientImage, compressImage, formatFileSize } from '../../utils/imageCompressor';
 
 export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }) {
-  const { categories } = useMenu();
+  const { categories, upsertProduct } = useMenu();
   const { addToast } = useToast();
 
   const isEdit = !!productToEdit;
@@ -157,14 +157,22 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
       };
 
       if (isEdit) {
-        await api.updateProduct(productToEdit.id, payload);
+        const updated = await api.updateProduct(productToEdit.id, payload);
+        if (updated) {
+          upsertProduct(updated);
+        }
         addToast(`Updated "${payload.name}" successfully!`, 'success');
       } else {
-        await api.createProduct(payload);
+        const created = await api.createProduct(payload);
+        if (created) {
+          upsertProduct(created);
+        }
         addToast(`Added "${payload.name}" to menu!`, 'success');
       }
 
-      onSaved();
+      if (onSaved) {
+        await onSaved();
+      }
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to save item');

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Coffee, ChevronRight } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 export default function MenuCard({ item, mode = 'grid' }) {
   const { setSelectedProduct } = useMenu();
@@ -20,7 +21,7 @@ export default function MenuCard({ item, mode = 'grid' }) {
         <div className="relative w-16 h-16 xs:w-18 xs:h-18 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200/80 dark:border-[#3A2012]">
           {item.image_url ? (
             <img
-              src={item.image_url}
+              src={getImageUrl(item.image_url, item.updated_at)}
               alt={item.name}
               loading="lazy"
               onError={(e) => {
@@ -98,7 +99,7 @@ export default function MenuCard({ item, mode = 'grid' }) {
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-[#2A170D]">
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={getImageUrl(item.image_url, item.updated_at)}
             alt={item.name}
             loading="lazy"
             onError={(e) => {

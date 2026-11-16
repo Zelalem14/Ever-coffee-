@@ -75,11 +75,24 @@ async function handleResponse(res) {
 }
 
 /**
- * Universal safe fetch wrapper that catches network errors and non-JSON responses
+ * Universal safe fetch wrapper that catches network errors and non-JSON responses.
+ * Sets cache: 'no-store' to guarantee always-fresh live database state.
  */
 async function safeFetch(url, options = {}) {
   try {
-    const res = await fetch(url, options);
+    const defaultHeaders = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    };
+    const finalOptions = {
+      cache: 'no-store',
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...(options.headers || {})
+      }
+    };
+    const res = await fetch(url, finalOptions);
     return await handleResponse(res);
   } catch (err) {
     // If it's already an Error with a human-readable message from handleResponse, rethrow it
@@ -142,7 +155,7 @@ export const api = {
 
   // ================= CATEGORIES =================
   async getCategories() {
-    return await safeFetch(`${API_BASE}/categories`);
+    return await safeFetch(`${API_BASE}/categories?_t=${Date.now()}`);
   },
 
   async createCategory(payload) {
@@ -176,8 +189,9 @@ export const api = {
         query.append(key, val);
       }
     });
+    query.append('_t', Date.now().toString());
 
-    const url = `${API_BASE}/products${query.toString() ? `?${query.toString()}` : ''}`;
+    const url = `${API_BASE}/products?${query.toString()}`;
     return await safeFetch(url);
   },
 

@@ -210,10 +210,10 @@ function initSettings(force = false) {
 export function seedDatabase(force = false) {
   initSettings(force);
 
-  const catCount = db.prepare('SELECT COUNT(*) as count FROM categories').get().count;
-  const prodCount = db.prepare('SELECT COUNT(*) as count FROM products').get().count;
+  const initRow = db.prepare("SELECT value FROM settings WHERE key = 'database_initialized'").get();
+  const isInitialized = initRow && initRow.value === '1';
 
-  if (force || catCount === 0 || prodCount === 0) {
+  if (force || !isInitialized) {
     if (force) {
       db.exec('DELETE FROM products; DELETE FROM categories;');
     }
@@ -263,6 +263,7 @@ export function seedDatabase(force = false) {
       }
     }
 
+    db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('database_initialized', '1')").run();
     console.log(`Database seeded with clean Drinks & Foods categories and products.`);
   }
 

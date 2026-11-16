@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '../api/api';
-import { initialCategories, initialProducts } from '../seedData';
 
 const MenuContext = createContext();
 
 export function MenuProvider({ children }) {
-  const [categories, setCategories] = useState(initialCategories);
-  const [products, setProducts] = useState(initialProducts);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [stats, setStats] = useState(null);
   const [settings, setSettings] = useState({
     coffee_house_name: "Ever Coffee House",
@@ -16,7 +15,7 @@ export function MenuProvider({ children }) {
     phone: "0970414440",
     address: "Addis Ababa, Ethiopia"
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'drinks', 'foods'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
@@ -34,10 +33,10 @@ export function MenuProvider({ children }) {
         api.getStats().catch(() => null),
         api.getSettings().catch(() => null)
       ]);
-      if (Array.isArray(catsData) && catsData.length > 0) {
+      if (Array.isArray(catsData)) {
         setCategories(catsData);
       }
-      if (Array.isArray(prodsData) && prodsData.length > 0) {
+      if (Array.isArray(prodsData)) {
         setProducts(prodsData);
       }
       if (statsData) setStats(statsData);
@@ -45,13 +44,49 @@ export function MenuProvider({ children }) {
         setSettings(prev => ({ ...prev, ...settingsData }));
       }
     } catch (err) {
-      console.warn('API unavailable, keeping default menu data:', err);
+      console.error('Error synchronizing live menu data:', err);
+    } finally {
+      setLoading(false);
     }
+  }, []);
+
+  // Remove product immediately from local state (optimistic instant update)
+  const removeProduct = useCallback((id) => {
+    setProducts((prev) => prev.filter((p) => p.id !== Number(id)));
+  }, []);
+
+  // Update or insert product immediately in local state
+  const upsertProduct = useCallback((item) => {
+    setProducts((prev) => {
+      const idx = prev.findIndex((p) => p.id === item.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], ...item };
+        return copy;
+      }
+      return [item, ...prev];
+    });
   }, []);
 
   useEffect(() => {
     loadAllData();
   }, [loadAllData]);
+
+  // Sync automatically when window receives focus (cross-tab / mobile resume sync)
+  useEffect(() => {
+    const handleFocus = () => {
+      loadAllData();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadAllData]);
+
+  // Automatically close product detail modal if item was deleted
+  useEffect(() => {
+    if (selectedProduct && !products.some((p) => p.id === selectedProduct.id)) {
+      setSelectedProduct(null);
+    }
+  }, [products, selectedProduct]);
 
   useEffect(() => {
     if (settings?.coffee_house_name) {
@@ -149,6 +184,8 @@ export function MenuProvider({ children }) {
         setSortBy,
         selectedProduct,
         setSelectedProduct,
+        removeProduct,
+        upsertProduct,
         refreshData: loadAllData
       }}
     >

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 export default function ProductDetailModal() {
   const { selectedProduct, setSelectedProduct } = useMenu();
@@ -49,7 +50,7 @@ export default function ProductDetailModal() {
           {selectedProduct.image_url && (
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0">
               <img
-                src={selectedProduct.image_url}
+                src={getImageUrl(selectedProduct.image_url, selectedProduct.updated_at)}
                 alt={selectedProduct.name}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';

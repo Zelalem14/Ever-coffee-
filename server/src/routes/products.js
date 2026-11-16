@@ -1,8 +1,13 @@
 import express from 'express';
-import { db, logAudit } from '../db.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { db, logAudit, deleteUploadedImage } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.resolve(__dirname, '../../uploads');
 
 // GET all products with dynamic filtering and search
 router.get('/', (req, res) => {
@@ -259,6 +264,20 @@ router.put('/:id', requireAuth, (req, res) => {
       Number(id)
     );
 
+    // If previous image was an uploaded file and was replaced with a new image, clean up old file
+    if (existing.image_url && updatedImage && existing.image_url !== updatedImage && existing.image_url.startsWith('/uploads/')) {
+      try {
+        const oldFilename = path.basename(existing.image_url.split('?')[0]);
+        deleteUploadedImage(oldFilename);
+        const oldDisk = path.join(uploadsDir, oldFilename);
+        if (fs.existsSync(oldDisk)) {
+          fs.unlinkSync(oldDisk);
+        }
+      } catch (cleanErr) {
+        console.warn('Could not clean up replaced image:', cleanErr.message);
+      }
+    }
+
     const updated = db.prepare(`
       SELECT 
         p.*,
@@ -320,12 +339,26 @@ router.patch('/:id/toggle-availability', requireAuth, (req, res) => {
 router.delete('/:id', requireAuth, (req, res) => {
   const { id } = req.params;
   try {
-    const existing = db.prepare('SELECT id, name FROM products WHERE id = ?').get(Number(id));
+    const existing = db.prepare('SELECT id, name, image_url FROM products WHERE id = ?').get(Number(id));
     if (!existing) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
     db.prepare('DELETE FROM products WHERE id = ?').run(Number(id));
+
+    // If deleted item had an uploaded image, clean up from database and disk storage
+    if (existing.image_url && existing.image_url.startsWith('/uploads/')) {
+      try {
+        const oldFilename = path.basename(existing.image_url.split('?')[0]);
+        deleteUploadedImage(oldFilename);
+        const oldDisk = path.join(uploadsDir, oldFilename);
+        if (fs.existsSync(oldDisk)) {
+          fs.unlinkSync(oldDisk);
+        }
+      } catch (cleanErr) {
+        console.warn('Could not clean up deleted product image:', cleanErr.message);
+      }
+    }
 
     logAudit({
       userId: req.user.id,
