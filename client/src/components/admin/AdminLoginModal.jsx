@@ -42,19 +42,19 @@ export default function AdminLoginModal() {
       onClick={() => setShowLoginModal(false)}
     >
       <div
-        className="relative w-full max-w-sm bg-white dark:bg-[#2A170D] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-[#E8DFC8] dark:border-[#3A2012] pb-safe"
+        className="relative w-full max-w-sm bg-white dark:bg-[#1F1009] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-zinc-200 dark:border-[#3A2012] pb-safe transition-colors duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Drag Indicator Bar */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-[#FAF6F0] dark:bg-[#1F1009]">
-          <div className="w-12 h-1.5 rounded-full bg-[#D7CCC8] dark:bg-[#3A2012]" />
+        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-zinc-50 dark:bg-[#120804]">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-[#3A2012]" />
         </div>
 
         {/* Header */}
-        <div className="bg-[#FAF6F0] dark:bg-[#1F1009] border-b border-[#E8DFC8] dark:border-[#3A2012] p-4 sm:p-5 relative">
+        <div className="bg-zinc-50 dark:bg-[#120804] border-b border-zinc-200 dark:border-[#3A2012] p-4 sm:p-5 relative">
           <button
             onClick={() => setShowLoginModal(false)}
-            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#A1887F] hover:text-[#2C1810] dark:hover:text-[#FAF4ED] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] transition-colors"
+            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-[#FAF4ED] hover:bg-zinc-100 dark:hover:bg-[#2A170D] transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -64,16 +64,16 @@ export default function AdminLoginModal() {
             <Lock className="w-5 h-5" />
           </div>
 
-          <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2C1810] dark:text-[#FAF4ED]">
+          <h3 className="font-serif text-lg sm:text-xl font-bold text-zinc-900 dark:text-[#FAF4ED]">
             Admin Security Login
           </h3>
-          <p className="text-xs text-[#8D6E63] dark:text-[#A89080] mt-0.5">
+          <p className="text-xs text-zinc-500 dark:text-[#A89080] mt-0.5">
             Ever Coffee House administrator & management access
           </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5 bg-white dark:bg-[#2A170D]">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5 bg-white dark:bg-[#1F1009]">
           {error && (
             <div className={`p-3 rounded-xl text-xs font-medium border flex items-start gap-2.5 ${
               isLocked 
@@ -88,11 +88,11 @@ export default function AdminLoginModal() {
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Username
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-[#A1887F] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
@@ -100,17 +100,17 @@ export default function AdminLoginModal() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter username"
-                className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#1F1009] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl border border-zinc-200 dark:border-[#3A2012] bg-zinc-50 dark:bg-[#120804] text-base sm:text-sm text-zinc-900 dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Password
             </label>
             <div className="relative">
-              <Key className="w-4 h-4 text-[#A1887F] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Key className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
@@ -118,12 +118,12 @@ export default function AdminLoginModal() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full min-h-[44px] pl-10 pr-10 py-2 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#1F1009] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                className="w-full min-h-[44px] pl-10 pr-10 py-2 rounded-xl border border-zinc-200 dark:border-[#3A2012] bg-zinc-50 dark:bg-[#120804] text-base sm:text-sm text-zinc-900 dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A1887F] hover:text-[#2C1810] dark:hover:text-[#FAF4ED]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900 dark:hover:text-[#FAF4ED]"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

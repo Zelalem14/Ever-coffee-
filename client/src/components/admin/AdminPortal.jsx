@@ -24,10 +24,10 @@ export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState('menu');
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] dark:bg-[#120804] text-[#2C1810] dark:text-[#FAF4ED] transition-colors flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#120804] text-zinc-900 dark:text-[#FAF4ED] transition-colors duration-200 flex flex-col">
       
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F1009]/95 backdrop-blur-md border-b border-[#E8DFC8] dark:border-[#3A2012] px-3.5 sm:px-6 py-3 transition-colors shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F1009]/95 backdrop-blur-md border-b border-zinc-200 dark:border-[#3A2012] px-3.5 sm:px-6 py-3 transition-colors shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           
           {/* Brand & Admin Badge */}
@@ -37,14 +37,14 @@ export default function AdminPortal() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif font-bold text-base sm:text-lg text-[#2C1810] dark:text-[#FAF4ED] leading-tight">
+                <h1 className="font-serif font-bold text-base sm:text-lg text-zinc-900 dark:text-[#FAF4ED] leading-tight">
                   {settings.coffee_house_name || 'Ever Coffee House'}
                 </h1>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EFEBE9] dark:bg-[#2A170D] text-[#5D4037] dark:text-[#D69E76] border border-[#D7CCC8]/60 dark:border-[#3A2012]">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-[#2A170D] text-zinc-700 dark:text-[#D69E76] border border-zinc-200 dark:border-[#3A2012]">
                   Admin
                 </span>
               </div>
-              <p className="text-[11px] text-[#8D6E63] dark:text-[#A89080] font-mono">
+              <p className="text-[11px] text-zinc-500 dark:text-[#A89080] font-mono">
                 Logged in as @{user?.username}
               </p>
             </div>
@@ -53,20 +53,34 @@ export default function AdminPortal() {
           {/* Right Header Action Buttons */}
           <div className="flex items-center gap-2">
             
-            {/* Theme Toggle Button */}
+            {/* Theme Toggle Button with Sun & Moon */}
             <button
               onClick={toggleTheme}
-              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-[#FAF6F0] dark:bg-[#2A170D] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] active:scale-95 transition-all"
-              title="Toggle theme (Light / Dark)"
-              aria-label="Toggle theme"
+              className={`flex items-center gap-1.5 min-h-[40px] px-3 rounded-xl border transition-all duration-200 active:scale-95 shadow-2xs ${
+                isDark 
+                  ? 'bg-[#2A170D] hover:bg-[#3A2012] border-[#3A2012] text-amber-300' 
+                  : 'bg-zinc-100 hover:bg-zinc-200/80 border-zinc-200 text-zinc-800'
+              }`}
+              title={isDark ? "Switch to Bright Mode" : "Switch to Dark Mode"}
+              aria-label={isDark ? "Switch to Bright Mode" : "Switch to Dark Mode"}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              {isDark ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="hidden sm:inline text-xs font-bold text-[#FAF4ED]">Bright</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span className="hidden sm:inline text-xs font-bold text-zinc-800">Dark</span>
+                </>
+              )}
             </button>
 
             {/* Back to Public Menu Button */}
             <button
               onClick={() => setIsAdminOpen(false)}
-              className="flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-[#3E2723] dark:text-[#FAF4ED] bg-[#FAF6F0] dark:bg-[#2A170D] hover:bg-[#EFEBE9] dark:hover:bg-[#3A2012] border border-[#D7CCC8] dark:border-[#3A2012] active:scale-95 transition-all shadow-2xs"
+              className="flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-zinc-800 dark:text-[#FAF4ED] bg-zinc-100 dark:bg-[#2A170D] hover:bg-zinc-200/80 dark:hover:bg-[#3A2012] border border-zinc-200 dark:border-[#3A2012] active:scale-95 transition-all shadow-2xs"
               title="View customer menu"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -96,7 +110,7 @@ export default function AdminPortal() {
         <div className="flex justify-center">
           <nav 
             aria-label="Admin Navigation"
-            className="inline-flex p-1.5 rounded-2xl bg-[#EFEBE9] dark:bg-[#1F1009] border border-[#D7CCC8] dark:border-[#3A2012] shadow-2xs w-full sm:w-auto max-w-md"
+            className="inline-flex p-1.5 rounded-2xl bg-zinc-100 dark:bg-[#1F1009] border border-zinc-200 dark:border-[#3A2012] shadow-2xs w-full sm:w-auto max-w-md"
           >
             {/* Tab 1: Manage Menu */}
             <button
@@ -104,7 +118,7 @@ export default function AdminPortal() {
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 ${
                 activeTab === 'menu'
                   ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-xs'
-                  : 'text-[#5D4037] dark:text-[#D69E76] hover:text-[#2C1810] dark:hover:text-[#FAF4ED]'
+                  : 'text-zinc-600 dark:text-[#D69E76] hover:text-zinc-900 dark:hover:text-[#FAF4ED]'
               }`}
             >
               <UtensilsCrossed className="w-4 h-4" />
@@ -117,7 +131,7 @@ export default function AdminPortal() {
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 ${
                 activeTab === 'account'
                   ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-xs'
-                  : 'text-[#5D4037] dark:text-[#D69E76] hover:text-[#2C1810] dark:hover:text-[#FAF4ED]'
+                  : 'text-zinc-600 dark:text-[#D69E76] hover:text-zinc-900 dark:hover:text-[#FAF4ED]'
               }`}
             >
               <KeyRound className="w-4 h-4" />

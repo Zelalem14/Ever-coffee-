@@ -103,19 +103,19 @@ export default function AdminProductsTable() {
     <div className="space-y-4 sm:space-y-6">
       
       {/* Top Header Card: Search, Category Filter Pills, & Add Item Button */}
-      <div className="bg-white dark:bg-[#1F1009] p-4 sm:p-5 rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs space-y-3.5">
+      <div className="bg-white dark:bg-[#1F1009] p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-[#3A2012] shadow-xs space-y-3.5">
         
         {/* Row 1: Search & Add Item */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Live Search */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#A1887F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search items by name or description..."
-              className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-sm text-[#2C1810] dark:text-[#FAF4ED] placeholder:text-[#A1887F] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+              className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-zinc-50 dark:bg-[#120804] border border-zinc-200 dark:border-[#3A2012] text-sm text-zinc-900 dark:text-[#FAF4ED] placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
             />
           </div>
 
@@ -130,8 +130,8 @@ export default function AdminProductsTable() {
         </div>
 
         {/* Row 2: Category Filter Buttons */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#E8DFC8]/50 dark:border-[#3A2012]/60">
-          <span className="text-xs font-semibold text-[#8D6E63] dark:text-[#D69E76] mr-1">
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-[#3A2012]/60">
+          <span className="text-xs font-semibold text-zinc-500 dark:text-[#D69E76] mr-1">
             Category:
           </span>
 
@@ -140,7 +140,7 @@ export default function AdminProductsTable() {
             className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
               selectedCat === 'all'
                 ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
-                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+                : 'bg-zinc-50 dark:bg-[#120804] text-zinc-700 dark:text-[#D69E76] hover:bg-zinc-100 dark:hover:bg-[#2A170D] border border-zinc-200 dark:border-[#3A2012]'
             }`}
           >
             All Items ({counts.all})
@@ -151,7 +151,7 @@ export default function AdminProductsTable() {
             className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
               selectedCat === 'drinks'
                 ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
-                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+                : 'bg-zinc-50 dark:bg-[#120804] text-zinc-700 dark:text-[#D69E76] hover:bg-zinc-100 dark:hover:bg-[#2A170D] border border-zinc-200 dark:border-[#3A2012]'
             }`}
           >
             Drinks ({counts.drinks})
@@ -162,7 +162,7 @@ export default function AdminProductsTable() {
             className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
               selectedCat === 'foods'
                 ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
-                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+                : 'bg-zinc-50 dark:bg-[#120804] text-zinc-700 dark:text-[#D69E76] hover:bg-zinc-100 dark:hover:bg-[#2A170D] border border-zinc-200 dark:border-[#3A2012]'
             }`}
           >
             Foods & Snacks ({counts.foods})
@@ -174,7 +174,7 @@ export default function AdminProductsTable() {
       {/* ================= MOBILE VIEW: TOUCH-FRIENDLY PRODUCT CARDS (block md:hidden) ================= */}
       <div className="block md:hidden space-y-3">
         {filtered.length === 0 ? (
-          <div className="bg-white dark:bg-[#1F1009] rounded-2xl p-8 text-center text-[#8D6E63] dark:text-[#A89080] border border-[#E8DFC8] dark:border-[#3A2012]">
+          <div className="bg-white dark:bg-[#1F1009] rounded-2xl p-8 text-center text-zinc-500 dark:text-[#A89080] border border-zinc-200 dark:border-[#3A2012]">
             No menu items found. Tap &quot;Add New Menu Item&quot; to create one.
           </div>
         ) : (
@@ -183,11 +183,11 @@ export default function AdminProductsTable() {
             return (
               <div 
                 key={product.id}
-                className="bg-white dark:bg-[#1F1009] rounded-2xl p-3.5 border border-[#E8DFC8] dark:border-[#3A2012] shadow-2xs space-y-3"
+                className="bg-white dark:bg-[#1F1009] rounded-2xl p-3.5 border border-zinc-200 dark:border-[#3A2012] shadow-2xs space-y-3"
               >
                 {/* Header: Picture + Title + Price */}
                 <div className="flex items-start gap-3">
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200 dark:border-[#3A2012]">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -196,7 +196,7 @@ export default function AdminProductsTable() {
                         className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#BCAAA4]">
+                      <div className="w-full h-full flex items-center justify-center text-zinc-400">
                         <Coffee className="w-6 h-6" />
                       </div>
                     )}
@@ -204,27 +204,27 @@ export default function AdminProductsTable() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">
-                      <h4 className="font-serif font-bold text-base text-[#2C1810] dark:text-[#FAF4ED] leading-snug truncate">
+                      <h4 className="font-serif font-bold text-base text-zinc-900 dark:text-[#FAF4ED] leading-snug truncate">
                         {product.name}
                       </h4>
                       <div className="text-right shrink-0">
                         <span className="font-serif font-black text-base text-[#3E2723] dark:text-[#D4AF37]">
                           {product.price_etb}
                         </span>
-                        <span className="text-[10px] font-bold text-[#8D6E63] dark:text-[#A89080] ml-0.5">
+                        <span className="text-[10px] font-bold text-zinc-500 dark:text-[#A89080] ml-0.5">
                           ETB
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-semibold text-[#4E342E] dark:text-[#D69E76] bg-[#EFEBE9] dark:bg-[#2A170D] px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-semibold text-zinc-700 dark:text-[#D69E76] bg-zinc-100 dark:bg-[#2A170D] px-2 py-0.5 rounded-md">
                         {product.category_name}
                       </span>
                     </div>
 
                     {product.description && (
-                      <p className="text-xs text-[#8D6E63] dark:text-[#A89080] line-clamp-1 mt-1">
+                      <p className="text-xs text-zinc-600 dark:text-[#A89080] line-clamp-1 mt-1">
                         {product.description}
                       </p>
                     )}
@@ -232,7 +232,7 @@ export default function AdminProductsTable() {
                 </div>
 
                 {/* Mobile Action Controls with min 44px touch targets */}
-                <div className="pt-2.5 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between gap-2">
+                <div className="pt-2.5 border-t border-zinc-100 dark:border-[#3A2012] flex items-center justify-between gap-2">
                   
                   {/* Stock Availability Toggle */}
                   <button
@@ -250,7 +250,7 @@ export default function AdminProductsTable() {
                   {/* Edit Button */}
                   <button
                     onClick={() => handleOpenEdit(product)}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] active:scale-95 transition-colors border border-[#D7CCC8]/60 dark:border-[#3A2012]"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-[#2A170D] text-zinc-800 dark:text-[#FAF4ED] hover:bg-zinc-200 active:scale-95 transition-colors border border-zinc-200 dark:border-[#3A2012]"
                     title="Edit Menu Item"
                     aria-label={`Edit ${product.name}`}
                   >
@@ -276,11 +276,11 @@ export default function AdminProductsTable() {
       </div>
 
       {/* ================= DESKTOP VIEW: CLEAN RESPONSIVE TABLE (hidden md:block) ================= */}
-      <div className="hidden md:block bg-white dark:bg-[#1F1009] rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] overflow-hidden shadow-xs">
+      <div className="hidden md:block bg-white dark:bg-[#1F1009] rounded-2xl border border-zinc-200 dark:border-[#3A2012] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#E8DFC8] dark:border-[#3A2012] bg-[#FAF6F0] dark:bg-[#120804] text-[11px] font-bold uppercase tracking-wider text-[#8D6E63] dark:text-[#A89080]">
+              <tr className="border-b border-zinc-200 dark:border-[#3A2012] bg-zinc-50 dark:bg-[#120804] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-[#A89080]">
                 <th className="py-3.5 px-4">Menu Item</th>
                 <th className="py-3.5 px-4">Category</th>
                 <th className="py-3.5 px-4">Price (ETB)</th>
@@ -288,10 +288,10 @@ export default function AdminProductsTable() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F5EBE1] dark:divide-[#3A2012] text-xs text-[#3E2723] dark:text-[#FAF4ED]">
+            <tbody className="divide-y divide-zinc-100 dark:divide-[#3A2012] text-xs text-zinc-800 dark:text-[#FAF4ED]">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-[#8D6E63] dark:text-[#A89080]">
+                  <td colSpan={5} className="py-10 text-center text-zinc-500 dark:text-[#A89080]">
                     No items found matching your filter. Tap &quot;Add New Menu Item&quot; to create one.
                   </td>
                 </tr>
@@ -301,12 +301,12 @@ export default function AdminProductsTable() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-[#FDFBF7] dark:hover:bg-[#2A170D] transition-colors"
+                      className="hover:bg-zinc-50/80 dark:hover:bg-[#2A170D] transition-colors"
                     >
                       {/* Item Thumbnail & Name */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200 dark:border-[#3A2012]">
                             {product.image_url ? (
                               <img
                                 src={product.image_url}
@@ -315,16 +315,16 @@ export default function AdminProductsTable() {
                                 className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[#BCAAA4]">
+                              <div className="w-full h-full flex items-center justify-center text-zinc-400">
                                 <Coffee className="w-6 h-6" />
                               </div>
                             )}
                           </div>
                           <div>
-                            <span className="font-semibold text-[#2C1810] dark:text-[#FAF4ED] block text-sm">
+                            <span className="font-semibold text-zinc-900 dark:text-[#FAF4ED] block text-sm">
                               {product.name}
                             </span>
-                            <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] line-clamp-1 max-w-sm">
+                            <span className="text-[11px] text-zinc-500 dark:text-[#A89080] line-clamp-1 max-w-sm">
                               {product.description || product.description_am || '—'}
                             </span>
                           </div>
@@ -333,14 +333,14 @@ export default function AdminProductsTable() {
 
                       {/* Section / Category */}
                       <td className="py-3 px-4">
-                        <span className="text-xs font-medium text-[#4E342E] dark:text-[#D69E76] bg-[#EFEBE9] dark:bg-[#2A170D] px-2.5 py-1 rounded-md border border-[#D7CCC8]/60 dark:border-[#3A2012]">
+                        <span className="text-xs font-medium text-zinc-700 dark:text-[#D69E76] bg-zinc-100 dark:bg-[#2A170D] px-2.5 py-1 rounded-md border border-zinc-200 dark:border-[#3A2012]">
                           {product.category_name}
                         </span>
                       </td>
 
                       {/* Price in ETB */}
-                      <td className="py-3 px-4 font-serif font-bold text-sm text-[#2C1810] dark:text-[#D4AF37]">
-                        {product.price_etb} <span className="text-[10px] text-[#8D6E63] dark:text-[#A89080] font-sans font-semibold">ETB</span>
+                      <td className="py-3 px-4 font-serif font-bold text-sm text-zinc-900 dark:text-[#D4AF37]">
+                        {product.price_etb} <span className="text-[10px] text-zinc-500 dark:text-[#A89080] font-sans font-semibold">ETB</span>
                       </td>
 
                       {/* Instant Toggle Availability */}

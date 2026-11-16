@@ -14,10 +14,10 @@ export default function MenuCard({ item, mode = 'grid' }) {
         tabIndex={0}
         onClick={() => setSelectedProduct(item)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedProduct(item); }}
-        className="group relative bg-white rounded-2xl p-3 border border-[#E8DFC8] shadow-2xs hover:shadow-md hover:border-[#BCAAA4] active:scale-[0.99] active:bg-[#FAF6F0] transition-all flex items-center gap-3.5 cursor-pointer min-h-[72px]"
+        className="group relative bg-white dark:bg-[#1F1009] rounded-2xl p-3 border border-zinc-200 dark:border-[#3A2012] shadow-2xs hover:shadow-md hover:border-zinc-300 dark:hover:border-[#D4AF37]/50 active:scale-[0.99] active:bg-zinc-50 dark:active:bg-[#2A170D] transition-all flex items-center gap-3.5 cursor-pointer min-h-[72px]"
       >
         {/* Left Thumbnail (68x68) */}
-        <div className="relative w-16 h-16 xs:w-18 xs:h-18 rounded-xl overflow-hidden bg-[#FAF6F0] shrink-0 border border-[#E8DFC8]/60">
+        <div className="relative w-16 h-16 xs:w-18 xs:h-18 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0 border border-zinc-200/80 dark:border-[#3A2012]">
           {item.image_url ? (
             <img
               src={item.image_url}
@@ -31,13 +31,13 @@ export default function MenuCard({ item, mode = 'grid' }) {
               }`}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#BCAAA4]">
+            <div className="w-full h-full flex items-center justify-center text-zinc-400">
               <Coffee className="w-8 h-8" />
             </div>
           )}
 
           {!isAvailable && (
-            <span className="absolute inset-0 bg-black/40 flex items-center justify-center text-[9px] font-bold text-white uppercase tracking-wider">
+            <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-[9px] font-bold text-white uppercase tracking-wider">
               Out
             </span>
           )}
@@ -46,7 +46,7 @@ export default function MenuCard({ item, mode = 'grid' }) {
         {/* Center Details */}
         <div className="flex-1 min-w-0 pr-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] truncate">
+            <h3 className="font-serif text-sm xs:text-base font-bold text-zinc-900 dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] truncate">
               {item.name}
             </h3>
             {isAvailable ? (
@@ -57,12 +57,12 @@ export default function MenuCard({ item, mode = 'grid' }) {
           </div>
 
           {item.description && (
-            <p className="text-[11px] xs:text-xs text-[#795548] dark:text-[#D69E76] leading-tight line-clamp-1 mt-0.5 font-light">
+            <p className="text-[11px] xs:text-xs text-zinc-600 dark:text-[#D69E76] leading-tight line-clamp-1 mt-0.5 font-light">
               {item.description}
             </p>
           )}
           {item.description_am && (
-            <p className="text-[11px] xs:text-xs text-[#5D4037] dark:text-[#A89080] leading-tight line-clamp-1 mt-0.5 font-normal">
+            <p className="text-[11px] xs:text-xs text-zinc-500 dark:text-[#A89080] leading-tight line-clamp-1 mt-0.5 font-normal">
               {item.description_am}
             </p>
           )}
@@ -71,14 +71,14 @@ export default function MenuCard({ item, mode = 'grid' }) {
             <span className="font-serif text-base xs:text-lg font-black text-[#3E2723] dark:text-[#D4AF37]">
               {item.price_etb}
             </span>
-            <span className="text-[10px] font-bold text-[#8D6E63] dark:text-[#A89080]">
+            <span className="text-[10px] font-bold text-zinc-500 dark:text-[#A89080]">
               ETB
             </span>
           </div>
         </div>
 
         {/* Right Arrow indicator */}
-        <div className="shrink-0 p-1 rounded-full text-[#BCAAA4] group-hover:text-[#3E2723] group-hover:translate-x-0.5 transition-all">
+        <div className="shrink-0 p-1 rounded-full text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all">
           <ChevronRight className="w-4 h-4" />
         </div>
       </div>
@@ -92,10 +92,10 @@ export default function MenuCard({ item, mode = 'grid' }) {
       tabIndex={0}
       onClick={() => setSelectedProduct(item)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedProduct(item); }}
-      className="group relative bg-white dark:bg-[#1F1009] rounded-2xl overflow-hidden border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs hover:shadow-md hover:border-[#BCAAA4] dark:hover:border-[#D4AF37]/50 active:scale-[0.98] transition-all duration-200 flex flex-col cursor-pointer"
+      className="group relative bg-white dark:bg-[#1F1009] rounded-2xl overflow-hidden border border-zinc-200 dark:border-[#3A2012] shadow-xs hover:shadow-md hover:border-zinc-300 dark:hover:border-[#D4AF37]/50 active:scale-[0.98] transition-all duration-200 flex flex-col cursor-pointer"
     >
       {/* Picture */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-[#2A170D]">
         {item.image_url ? (
           <img
             src={item.image_url}
@@ -109,7 +109,7 @@ export default function MenuCard({ item, mode = 'grid' }) {
             }`}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#BCAAA4]">
+          <div className="w-full h-full flex items-center justify-center text-zinc-400">
             <Coffee className="w-10 h-10" />
           </div>
         )}
@@ -133,32 +133,32 @@ export default function MenuCard({ item, mode = 'grid' }) {
       {/* Content Details */}
       <div className="p-3 xs:p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
         <div>
-          <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] transition-colors line-clamp-1">
+          <h3 className="font-serif text-sm xs:text-base font-bold text-zinc-900 dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] transition-colors line-clamp-1">
             {item.name}
           </h3>
 
           {item.description && (
-            <p className="text-[11px] xs:text-xs text-[#795548] dark:text-[#D69E76] leading-relaxed line-clamp-2 mt-0.5 font-light">
+            <p className="text-[11px] xs:text-xs text-zinc-600 dark:text-[#D69E76] leading-relaxed line-clamp-2 mt-0.5 font-light">
               {item.description}
             </p>
           )}
           {item.description_am && (
-            <p className="text-[11px] xs:text-xs text-[#8D6E63] dark:text-[#A89080] leading-relaxed line-clamp-2 mt-0.5 font-normal">
+            <p className="text-[11px] xs:text-xs text-zinc-500 dark:text-[#A89080] leading-relaxed line-clamp-2 mt-0.5 font-normal">
               {item.description_am}
             </p>
           )}
         </div>
 
         {/* Price Row in ETB */}
-        <div className="pt-2 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between">
-          <span className="text-[10px] text-[#A1887F] dark:text-[#8D6E63] uppercase tracking-wider font-semibold">
+        <div className="pt-2 border-t border-zinc-100 dark:border-[#3A2012] flex items-center justify-between">
+          <span className="text-[10px] text-zinc-400 dark:text-[#8D6E63] uppercase tracking-wider font-semibold">
             Price
           </span>
           <div className="flex items-baseline gap-1">
             <span className="font-serif text-base xs:text-lg sm:text-xl font-extrabold text-[#3E2723] dark:text-[#D4AF37]">
               {item.price_etb}
             </span>
-            <span className="text-[10px] xs:text-xs font-bold text-[#8D6E63] dark:text-[#A89080]">
+            <span className="text-[10px] xs:text-xs font-bold text-zinc-500 dark:text-[#A89080]">
               ETB
             </span>
           </div>

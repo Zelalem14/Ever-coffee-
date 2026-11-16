@@ -12,7 +12,7 @@ export default function App() {
   const { isAdminOpen } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] dark:bg-[#120804] text-[#2C1810] dark:text-[#FAF4ED] font-sans selection:bg-[#D7CCC8] selection:text-[#2C1810] antialiased transition-colors">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#120804] text-zinc-900 dark:text-[#FAF4ED] font-sans selection:bg-[#EFEBE9] selection:text-[#2C1810] antialiased transition-colors duration-200">
       {/* If Admin Portal is active, show the Admin Dashboard */}
       {isAdminOpen ? (
         <AdminPortal />

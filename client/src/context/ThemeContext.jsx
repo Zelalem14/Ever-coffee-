@@ -3,14 +3,19 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
+  // Requirement: Default to Bright / Light Mode whenever a new user opens the website
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('coffeehouse_theme');
-    if (saved) return saved;
-    // Check OS preference
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
+    try {
+      const saved = localStorage.getItem('coffeehouse_theme');
+      // Only use dark if the user explicitly previously toggled to 'dark'
+      if (saved === 'dark') {
+        return 'dark';
+      }
+      // Default to Light/Bright mode for all new visitors
+      return 'light';
+    } catch (e) {
+      return 'light';
     }
-    return 'light';
   });
 
   useEffect(() => {
@@ -20,11 +25,24 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('coffeehouse_theme', theme);
+
+    // Persist choice
+    try {
+      localStorage.setItem('coffeehouse_theme', theme);
+    } catch (e) {
+      // Storage error safeguard
+    }
+
+    // Update browser address bar meta theme-color smoothly
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#120804' : '#FFFFFF');
+    }
   }, [theme]);
 
+  // Smooth instant toggle without refreshing
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
   return (

@@ -25,18 +25,18 @@ export default function ProductDetailModal() {
       onClick={() => setSelectedProduct(null)}
     >
       <div
-        className="relative w-full max-w-md bg-white dark:bg-[#1F1009] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-[#E8DFC8] dark:border-[#3A2012] max-h-[90vh] flex flex-col pb-safe"
+        className="relative w-full max-w-md bg-white dark:bg-[#1F1009] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-zinc-200 dark:border-[#3A2012] max-h-[90vh] flex flex-col pb-safe transition-colors duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Drag Indicator Bar */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-[#FAF6F0] dark:bg-[#120804]">
-          <div className="w-12 h-1.5 rounded-full bg-[#D7CCC8] dark:bg-[#3A2012]" />
+        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-zinc-50 dark:bg-[#120804]">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-[#3A2012]" />
         </div>
 
         {/* Close Button with >=44px touch target */}
         <button
           onClick={() => setSelectedProduct(null)}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/90 dark:bg-[#2A170D]/90 hover:bg-white text-[#5D4037] dark:text-[#FAF4ED] border border-[#E8DFC8] dark:border-[#3A2012] shadow-sm transition-colors active:scale-95"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/95 dark:bg-[#2A170D]/95 hover:bg-white text-zinc-700 dark:text-[#FAF4ED] border border-zinc-200 dark:border-[#3A2012] shadow-sm transition-colors active:scale-95"
           aria-label="Close details"
         >
           <X className="w-5 h-5" />
@@ -47,7 +47,7 @@ export default function ProductDetailModal() {
           
           {/* Item Picture */}
           {selectedProduct.image_url && (
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-[#2A170D] shrink-0">
               <img
                 src={selectedProduct.image_url}
                 alt={selectedProduct.name}
@@ -65,37 +65,37 @@ export default function ProductDetailModal() {
           <div className="p-5 sm:p-6 space-y-4">
             
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8D6E63] dark:text-[#D69E76] bg-[#EFEBE9] dark:bg-[#2A170D] px-2.5 py-1 rounded-md inline-block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 dark:text-[#D69E76] bg-zinc-100 dark:bg-[#2A170D] px-2.5 py-1 rounded-md inline-block">
                 {selectedProduct.category_name}
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2C1810] dark:text-[#FAF4ED] leading-tight">
+              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-[#FAF4ED] leading-tight">
                 {selectedProduct.name}
               </h2>
             </div>
 
             {selectedProduct.description && (
-              <p className="text-sm text-[#5D4037] dark:text-[#D69E76] leading-relaxed font-light">
+              <p className="text-sm text-zinc-700 dark:text-[#D69E76] leading-relaxed font-light">
                 {selectedProduct.description}
               </p>
             )}
 
             {selectedProduct.description_am && (
-              <p className="text-sm text-[#795548] dark:text-[#A89080] leading-relaxed font-normal bg-[#FAF6F0] dark:bg-[#2A170D] px-3 py-2 rounded-xl border border-[#E8DFC8] dark:border-[#3A2012]">
+              <p className="text-sm text-zinc-600 dark:text-[#A89080] leading-relaxed font-normal bg-zinc-50 dark:bg-[#2A170D] px-3 py-2 rounded-xl border border-zinc-200 dark:border-[#3A2012]">
                 {selectedProduct.description_am}
               </p>
             )}
 
             {/* Price & Availability Row */}
-            <div className="pt-3 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between">
+            <div className="pt-3 border-t border-zinc-100 dark:border-[#3A2012] flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-[#A1887F] dark:text-[#8D6E63] uppercase tracking-wider block font-semibold">
+                <span className="text-[10px] text-zinc-400 dark:text-[#8D6E63] uppercase tracking-wider block font-semibold">
                   Price in Birr
                 </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="font-serif text-2xl sm:text-3xl font-black text-[#2C1810] dark:text-[#D4AF37]">
+                  <span className="font-serif text-2xl sm:text-3xl font-black text-zinc-900 dark:text-[#D4AF37]">
                     {selectedProduct.price_etb}
                   </span>
-                  <span className="text-xs font-bold text-[#8D6E63] dark:text-[#A89080]">
+                  <span className="text-xs font-bold text-zinc-500 dark:text-[#A89080]">
                     ETB
                   </span>
                 </div>
