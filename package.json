@@ -5,11 +5,11 @@
   "type": "module",
   "description": "Premium Ethiopian Coffee House Digital Menu Website",
   "scripts": {
+    "build": "cd client && npm install && npm run build",
     "start": "node server/src/index.js",
     "server": "npm run start --prefix server",
     "server:dev": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
-    "build": "npm run build --prefix client",
     "test": "node test-api.js"
   }
 }
