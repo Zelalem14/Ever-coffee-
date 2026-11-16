@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Search, Edit3, Trash2, Coffee } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Search, Edit3, Trash2, Coffee, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../../api/api';
 import { useMenu } from '../../context/MenuContext';
 import { useToast } from '../../context/ToastContext';
@@ -19,26 +19,48 @@ export default function AdminProductsTable() {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Filter products for admin table
-  const filtered = products.filter((p) => {
-    if (selectedCat !== 'all') {
-      if (p.category_id !== Number(selectedCat) && p.category_slug !== selectedCat) {
-        return false;
+  // Quick category counts
+  const counts = useMemo(() => {
+    let drinks = 0;
+    let foods = 0;
+    products.forEach((p) => {
+      const slug = (p.category_slug || '').toLowerCase();
+      const name = (p.category_name || '').toLowerCase();
+      if (slug.includes('drink') || slug.includes('coffee') || slug.includes('tea') || name.includes('drink')) {
+        drinks++;
+      } else {
+        foods++;
       }
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      const matchName = p.name.toLowerCase().includes(q);
-      const matchDesc = (p.description || '').toLowerCase().includes(q);
-      if (!matchName && !matchDesc) return false;
-    }
-    return true;
-  });
+    });
+    return { all: products.length, drinks, foods };
+  }, [products]);
+
+  // Filter products for admin table
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      if (selectedCat !== 'all') {
+        const slug = (p.category_slug || '').toLowerCase();
+        const name = (p.category_name || '').toLowerCase();
+        const isDrink = slug.includes('drink') || slug.includes('coffee') || slug.includes('tea') || name.includes('drink');
+        if (selectedCat === 'drinks' && !isDrink) return false;
+        if (selectedCat === 'foods' && isDrink) return false;
+        if (typeof selectedCat === 'number' && p.category_id !== selectedCat) return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const matchName = p.name.toLowerCase().includes(q);
+        const matchDesc = (p.description || '').toLowerCase().includes(q);
+        const matchDescAm = (p.description_am || '').toLowerCase().includes(q);
+        if (!matchName && !matchDesc && !matchDescAm) return false;
+      }
+      return true;
+    });
+  }, [products, selectedCat, search]);
 
   const handleToggleAvailability = async (product) => {
     try {
       await api.toggleProductAvailability(product.id);
-      const newStatus = product.is_available === 1 ? 'Unavailable' : 'Available';
+      const newStatus = product.is_available === 1 ? 'Out of Stock' : 'In Stock';
       addToast(`"${product.name}" marked as ${newStatus}`, 'success');
       refreshData();
     } catch (err) {
@@ -78,54 +100,82 @@ export default function AdminProductsTable() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-6">
       
-      {/* Top Action & Search Bar */}
-      <div className="bg-white dark:bg-[#1F1009] p-3.5 sm:p-4 rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs space-y-3">
+      {/* Top Header Card: Search, Category Filter Pills, & Add Item Button */}
+      <div className="bg-white dark:bg-[#1F1009] p-4 sm:p-5 rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs space-y-3.5">
         
-        {/* Search */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#A1887F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search items by name..."
-            className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-sm text-[#2C1810] dark:text-[#FAF4ED] placeholder:text-[#A1887F] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
-          />
-        </div>
+        {/* Row 1: Search & Add Item */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Live Search */}
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-[#A1887F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search items by name or description..."
+              className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-sm text-[#2C1810] dark:text-[#FAF4ED] placeholder:text-[#A1887F] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+            />
+          </div>
 
-        {/* Category Filter & Add Button */}
-        <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-2.5">
-          <select
-            value={selectedCat}
-            onChange={(e) => setSelectedCat(e.target.value)}
-            className="min-h-[44px] py-2 px-3 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-xs sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 cursor-pointer font-medium"
-          >
-            <option value="all">All Items ({products.length})</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.product_count || 0})
-              </option>
-            ))}
-          </select>
-
+          {/* Add New Item Button */}
           <button
             onClick={handleOpenAdd}
-            className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white dark:text-[#120804] bg-[#3E2723] dark:bg-[#D4AF37] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 shadow-xs transition-all shrink-0"
+            className="flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white dark:text-[#120804] bg-[#3E2723] dark:bg-[#D4AF37] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 shadow-xs transition-all shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>Add New Item</span>
+            <span>Add New Menu Item</span>
+          </button>
+        </div>
+
+        {/* Row 2: Category Filter Buttons */}
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#E8DFC8]/50 dark:border-[#3A2012]/60">
+          <span className="text-xs font-semibold text-[#8D6E63] dark:text-[#D69E76] mr-1">
+            Category:
+          </span>
+
+          <button
+            onClick={() => setSelectedCat('all')}
+            className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
+              selectedCat === 'all'
+                ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
+                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+            }`}
+          >
+            All Items ({counts.all})
+          </button>
+
+          <button
+            onClick={() => setSelectedCat('drinks')}
+            className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
+              selectedCat === 'drinks'
+                ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
+                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+            }`}
+          >
+            Drinks ({counts.drinks})
+          </button>
+
+          <button
+            onClick={() => setSelectedCat('foods')}
+            className={`min-h-[36px] px-3.5 py-1 rounded-xl text-xs font-semibold transition-all ${
+              selectedCat === 'foods'
+                ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
+                : 'bg-[#FAF6F0] dark:bg-[#120804] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012]'
+            }`}
+          >
+            Foods & Snacks ({counts.foods})
           </button>
         </div>
 
       </div>
 
-      {/* ================= MOBILE VIEW: TOUCH-FRIENDLY CARDS (block md:hidden) ================= */}
+      {/* ================= MOBILE VIEW: TOUCH-FRIENDLY PRODUCT CARDS (block md:hidden) ================= */}
       <div className="block md:hidden space-y-3">
         {filtered.length === 0 ? (
           <div className="bg-white dark:bg-[#1F1009] rounded-2xl p-8 text-center text-[#8D6E63] dark:text-[#A89080] border border-[#E8DFC8] dark:border-[#3A2012]">
-            No items found matching your filter.
+            No menu items found. Tap &quot;Add New Menu Item&quot; to create one.
           </div>
         ) : (
           filtered.map((product) => {
@@ -135,13 +185,14 @@ export default function AdminProductsTable() {
                 key={product.id}
                 className="bg-white dark:bg-[#1F1009] rounded-2xl p-3.5 border border-[#E8DFC8] dark:border-[#3A2012] shadow-2xs space-y-3"
               >
-                {/* Header: Thumbnail + Title + Price */}
+                {/* Header: Picture + Title + Price */}
                 <div className="flex items-start gap-3">
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
                         alt={product.name}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
                       />
                     ) : (
@@ -183,7 +234,7 @@ export default function AdminProductsTable() {
                 {/* Mobile Action Controls with min 44px touch targets */}
                 <div className="pt-2.5 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between gap-2">
                   
-                  {/* Availability Toggle */}
+                  {/* Stock Availability Toggle */}
                   <button
                     onClick={() => handleToggleAvailability(product)}
                     className={`flex-1 flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold active:scale-95 transition-all ${
@@ -200,7 +251,7 @@ export default function AdminProductsTable() {
                   <button
                     onClick={() => handleOpenEdit(product)}
                     className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] active:scale-95 transition-colors border border-[#D7CCC8]/60 dark:border-[#3A2012]"
-                    title="Edit Item"
+                    title="Edit Menu Item"
                     aria-label={`Edit ${product.name}`}
                   >
                     <Edit3 className="w-4 h-4" />
@@ -210,7 +261,7 @@ export default function AdminProductsTable() {
                   <button
                     onClick={() => handleOpenDelete(product)}
                     className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 active:scale-95 transition-colors border border-rose-200 dark:border-rose-900"
-                    title="Delete Item"
+                    title="Delete Menu Item"
                     aria-label={`Delete ${product.name}`}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -224,24 +275,24 @@ export default function AdminProductsTable() {
         )}
       </div>
 
-      {/* ================= DESKTOP VIEW: FULL TABLE (hidden md:block) ================= */}
+      {/* ================= DESKTOP VIEW: CLEAN RESPONSIVE TABLE (hidden md:block) ================= */}
       <div className="hidden md:block bg-white dark:bg-[#1F1009] rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#E8DFC8] dark:border-[#3A2012] bg-[#FAF6F0] dark:bg-[#120804] text-[11px] font-bold uppercase tracking-wider text-[#8D6E63] dark:text-[#A89080]">
-                <th className="py-3 px-4">Item</th>
-                <th className="py-3 px-4">Section</th>
-                <th className="py-3 px-4">Price (ETB)</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4">Menu Item</th>
+                <th className="py-3.5 px-4">Category</th>
+                <th className="py-3.5 px-4">Price (ETB)</th>
+                <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F5EBE1] dark:divide-[#3A2012] text-xs text-[#3E2723] dark:text-[#FAF4ED]">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[#8D6E63] dark:text-[#A89080]">
-                    No items found matching your filter.
+                  <td colSpan={5} className="py-10 text-center text-[#8D6E63] dark:text-[#A89080]">
+                    No items found matching your filter. Tap &quot;Add New Menu Item&quot; to create one.
                   </td>
                 </tr>
               ) : (
@@ -255,19 +306,26 @@ export default function AdminProductsTable() {
                       {/* Item Thumbnail & Name */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
-                            />
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                className={`w-full h-full object-cover ${!isAvail ? 'opacity-50 grayscale' : ''}`}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[#BCAAA4]">
+                                <Coffee className="w-6 h-6" />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <span className="font-semibold text-[#2C1810] dark:text-[#FAF4ED] block text-sm">
                               {product.name}
                             </span>
-                            <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] line-clamp-1 max-w-xs">
-                              {product.description}
+                            <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] line-clamp-1 max-w-sm">
+                              {product.description || product.description_am || '—'}
                             </span>
                           </div>
                         </div>
@@ -307,14 +365,14 @@ export default function AdminProductsTable() {
                           <button
                             onClick={() => handleOpenEdit(product)}
                             className="p-2 rounded-lg bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] dark:hover:bg-[#3A2012] transition-colors"
-                            title="Edit Item"
+                            title="Edit Menu Item"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenDelete(product)}
                             className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors"
-                            title="Delete Item"
+                            title="Delete Menu Item"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -341,8 +399,8 @@ export default function AdminProductsTable() {
       {/* Confirm Delete Dialog */}
       <ConfirmDeleteModal
         isOpen={deleteModalOpen}
-        title="Delete Item"
-        message={`Are you sure you want to delete "${productToDelete?.name}" from the menu?`}
+        title="Delete Menu Item"
+        message={`Are you sure you want to delete "${productToDelete?.name}" from the menu? This will remove it from the customer website immediately.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => {
           setDeleteModalOpen(false);
