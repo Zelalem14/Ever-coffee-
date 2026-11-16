@@ -113,6 +113,14 @@ db.exec(`
     attempt_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     success INTEGER DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS uploaded_images (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename TEXT UNIQUE NOT NULL,
+    mime_type TEXT NOT NULL,
+    data_base64 TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Safe schema migration for existing DBs
@@ -127,6 +135,37 @@ ensureColumn('products', 'description_am', "TEXT DEFAULT ''");
 ensureColumn('admins', 'email', "TEXT DEFAULT ''");
 ensureColumn('admins', 'is_active', "INTEGER DEFAULT 1");
 ensureColumn('admins', 'last_login', "DATETIME");
+
+// Uploaded Images Storage & Recovery Helpers (for permanent persistence)
+export function saveUploadedImage(filename, mimeType, buffer) {
+  try {
+    const base64 = buffer.toString('base64');
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO uploaded_images (filename, mime_type, data_base64)
+      VALUES (?, ?, ?)
+    `);
+    stmt.run(filename, mimeType, base64);
+  } catch (err) {
+    console.error('Failed to save image into database:', err.message);
+  }
+}
+
+export function getUploadedImage(filename) {
+  try {
+    return db.prepare('SELECT mime_type, data_base64 FROM uploaded_images WHERE filename = ?').get(filename);
+  } catch (err) {
+    console.error('Failed to get image from database:', err.message);
+    return null;
+  }
+}
+
+export function deleteUploadedImage(filename) {
+  try {
+    db.prepare('DELETE FROM uploaded_images WHERE filename = ?').run(filename);
+  } catch (err) {
+    console.error('Failed to delete image from database:', err.message);
+  }
+}
 
 // Audit Log Helper
 export function logAudit({ userId = null, username = 'system', action, entityType = '', entityId = '', details = '', req = null }) {

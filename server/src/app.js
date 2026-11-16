@@ -6,7 +6,7 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
-import { seedDatabase } from './db.js';
+import { seedDatabase, getUploadedImage } from './db.js';
 import authRoutes from './routes/auth.js';
 import categoryRoutes from './routes/categories.js';
 import productRoutes from './routes/products.js';
@@ -37,8 +37,42 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
-// Serve static uploads
+// Serve static uploads with automatic SQLite restoration for permanent persistence
 const uploadsPath = path.resolve(__dirname, '../uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
+app.get('/uploads/:filename', (req, res, next) => {
+  const filename = path.basename(req.params.filename);
+  const diskPath = path.join(uploadsPath, filename);
+
+  // 1. If available on disk, serve directly
+  if (fs.existsSync(diskPath)) {
+    return res.sendFile(diskPath);
+  }
+
+  // 2. If missing from disk (e.g. server restart, container redeploy), restore from SQLite
+  try {
+    const record = getUploadedImage(filename);
+    if (record && record.data_base64) {
+      const buffer = Buffer.from(record.data_base64, 'base64');
+      try {
+        fs.writeFileSync(diskPath, buffer);
+      } catch (writeErr) {
+        // Safe to ignore in read-only filesystems
+      }
+      res.setHeader('Content-Type', record.mime_type || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.send(buffer);
+    }
+  } catch (err) {
+    console.error('Failed to restore image from database:', err.message);
+  }
+
+  return res.status(404).json({ error: 'Image not found' });
+});
+
 app.use('/uploads', express.static(uploadsPath));
 
 // Health check

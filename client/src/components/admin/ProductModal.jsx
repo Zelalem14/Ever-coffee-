@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, Upload, Link as LinkIcon } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Upload, Link as LinkIcon, CheckCircle2, AlertCircle, Loader2, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { api } from '../../api/api';
 import { useMenu } from '../../context/MenuContext';
 import { useToast } from '../../context/ToastContext';
+import { validateClientImage, compressImage, formatFileSize } from '../../utils/imageCompressor';
 
 export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }) {
   const { categories } = useMenu();
@@ -20,8 +21,13 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
   const [imageMode, setImageMode] = useState('upload'); // 'upload' or 'url'
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [localPreviewUrl, setLocalPreviewUrl] = useState('');
+  const [detectedFormat, setDetectedFormat] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (productToEdit) {
@@ -42,7 +48,19 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
       setIsAvailable(true);
     }
     setError('');
+    setUploadStatus('');
+    setLocalPreviewUrl('');
+    setDetectedFormat('');
   }, [productToEdit, isOpen, categories]);
+
+  // Clean up any object URL when unmounting or switching previews
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl && localPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
 
   if (!isOpen) return null;
 
@@ -50,17 +68,63 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setError('');
+    setUploadStatus('Verifying image file signature...');
+
+    // 1. Client-side magic byte & size validation
+    const validation = await validateClientImage(file);
+    if (!validation.valid) {
+      setError(validation.error);
+      addToast(validation.error, 'error');
+      setUploadStatus('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setDetectedFormat(validation.format);
+
+    // 2. Generate instant client-side preview URL
+    const preview = URL.createObjectURL(file);
+    setLocalPreviewUrl(preview);
+
     try {
       setUploading(true);
-      const res = await api.uploadImage(file);
+      setUploadStatus(`Optimizing ${validation.format} (${formatFileSize(file.size)})...`);
+
+      // 3. Compress large images (mobile camera shots) while preserving quality
+      const compressionResult = await compressImage(file, 1600, 0.88);
+      const fileToUpload = compressionResult.file;
+
+      if (compressionResult.compressed) {
+        setUploadStatus(`Uploading compressed ${validation.format} (${formatFileSize(fileToUpload.size)} - saved ${compressionResult.savedPercent})...`);
+      } else {
+        setUploadStatus(`Uploading ${validation.format} (${formatFileSize(fileToUpload.size)})...`);
+      }
+
+      // 4. Send to server backend with persistent SQLite + disk storage
+      const res = await api.uploadImage(fileToUpload);
       setImageUrl(res.url);
-      addToast('Image uploaded successfully!', 'success');
+      setUploadStatus('Image stored permanently!');
+      addToast(`Image uploaded successfully (${validation.format})!`, 'success');
     } catch (err) {
       setError(err.message || 'Image upload failed');
       addToast(err.message || 'Image upload failed', 'error');
+      setLocalPreviewUrl('');
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl('');
+    if (localPreviewUrl && localPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    setLocalPreviewUrl('');
+    setUploadStatus('');
+    setDetectedFormat('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSubmit = async (e) => {
@@ -110,6 +174,8 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
     }
   };
 
+  const activeImage = localPreviewUrl || imageUrl;
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
@@ -146,8 +212,9 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto bg-white dark:bg-[#1F1009] flex-1">
           {error && (
-            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-medium border border-red-200 dark:border-red-900">
-              {error}
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-medium border border-red-200 dark:border-red-900 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -266,48 +333,130 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
               </div>
             </div>
 
-            {imageMode === 'upload' ? (
-              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-[#D7CCC8] dark:border-[#3A2012] rounded-xl hover:border-[#8D6E63] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D] cursor-pointer transition-colors min-h-[90px]">
-                <Upload className="w-5 h-5 text-[#8D6E63] dark:text-[#D69E76] mb-1" />
-                <span className="text-xs font-medium text-[#5D4037] dark:text-[#FAF4ED]">
-                  {uploading ? 'Uploading image...' : 'Tap to take photo or choose file'}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            ) : (
-              <input
-                type="url"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
-              />
-            )}
+            {/* Hidden file input supporting all formats across Mobile & Desktop */}
+            <input
+              id="admin-image-upload-input"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.svg,.heic,.heif,.tiff,.tif"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              className="hidden"
+            />
 
-            {/* Thumbnail preview */}
-            {imageUrl && (
-              <div className="flex items-center gap-3 p-2 bg-[#FAF6F0] dark:bg-[#2A170D] rounded-xl border border-[#E8DFC8] dark:border-[#3A2012]">
-                <img
-                  src={imageUrl}
-                  alt="Preview"
-                  className="w-12 h-12 object-cover rounded-lg border border-[#D7CCC8] dark:border-[#3A2012]"
-                />
-                <span className="text-xs text-[#8D6E63] dark:text-[#A89080] truncate flex-1">
-                  Image selected
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setImageUrl('')}
-                  className="text-xs text-rose-600 dark:text-rose-400 hover:underline min-h-[36px] px-2 flex items-center"
+            {imageMode === 'upload' ? (
+              activeImage ? (
+                /* Enhanced Image Preview Card */
+                <div className="p-3 bg-[#FAF6F0] dark:bg-[#2A170D] rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] flex items-center gap-3.5">
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-[#D7CCC8] dark:border-[#3A2012] bg-[#EFEBE9] shrink-0">
+                    <img
+                      src={activeImage}
+                      alt="Selected Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80';
+                      }}
+                    />
+                    {uploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>{detectedFormat ? `${detectedFormat} Preview Ready` : 'Image Ready'}</span>
+                    </div>
+                    <p className="text-xs text-[#8D6E63] dark:text-[#A89080] truncate mt-0.5">
+                      {uploadStatus || (imageUrl.startsWith('/uploads') ? 'Permanently stored in system' : 'Ready to save')}
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="text-xs font-semibold text-[#3E2723] dark:text-[#D4AF37] hover:underline flex items-center gap-1"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        Replace
+                      </button>
+                      <span className="text-[#D7CCC8] dark:text-[#5D4037]">|</span>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        disabled={uploading}
+                        className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Upload Dropzone */
+                <label
+                  htmlFor="admin-image-upload-input"
+                  className={`flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#D7CCC8] dark:border-[#3A2012] rounded-2xl hover:border-[#8D6E63] dark:hover:border-[#D4AF37] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D] cursor-pointer transition-all min-h-[110px] text-center ${
+                    uploading ? 'opacity-60 pointer-events-none' : ''
+                  }`}
                 >
-                  Remove
-                </button>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-6 h-6 text-[#8D6E63] dark:text-[#D4AF37] animate-spin mb-2" />
+                      <span className="text-xs font-semibold text-[#5D4037] dark:text-[#FAF4ED]">
+                        {uploadStatus || 'Processing image...'}
+                      </span>
+                      <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] mt-0.5">
+                        Optimizing quality & saving permanently
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-[#8D6E63] dark:text-[#D69E76] mb-1.5" />
+                      <span className="text-xs sm:text-sm font-semibold text-[#5D4037] dark:text-[#FAF4ED]">
+                        Tap to choose photo or upload file
+                      </span>
+                      <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] mt-0.5">
+                        Supports JPG, PNG, WEBP, GIF, BMP, SVG, HEIC, TIFF (Max 10MB)
+                      </span>
+                    </>
+                  )}
+                </label>
+              )
+            ) : (
+              /* Direct URL Input Mode */
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                />
+                {imageUrl && (
+                  <div className="flex items-center gap-3 p-2 bg-[#FAF6F0] dark:bg-[#2A170D] rounded-xl border border-[#E8DFC8] dark:border-[#3A2012]">
+                    <img
+                      src={imageUrl}
+                      alt="URL Preview"
+                      className="w-12 h-12 object-cover rounded-lg border border-[#D7CCC8] dark:border-[#3A2012]"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80';
+                      }}
+                    />
+                    <span className="text-xs text-[#8D6E63] dark:text-[#A89080] truncate flex-1">
+                      URL preview loaded
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="text-xs text-rose-600 dark:text-rose-400 hover:underline min-h-[36px] px-2 flex items-center"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
