@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '../api/api';
+import { initialCategories, initialProducts } from '../seedData';
 
 const MenuContext = createContext();
 
 export function MenuProvider({ children }) {
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(initialCategories);
+  const [products, setProducts] = useState(initialProducts);
   const [stats, setStats] = useState(null);
   const [settings, setSettings] = useState({
     coffee_house_name: "Ever Coffee House",
@@ -15,7 +16,7 @@ export function MenuProvider({ children }) {
     phone: "0970414440",
     address: "Addis Ababa, Ethiopia"
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'drinks', 'foods'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
@@ -27,23 +28,24 @@ export function MenuProvider({ children }) {
 
   const loadAllData = useCallback(async () => {
     try {
-      setLoading(true);
       const [catsData, prodsData, statsData, settingsData] = await Promise.all([
-        api.getCategories(),
-        api.getProducts(),
+        api.getCategories().catch(() => null),
+        api.getProducts().catch(() => null),
         api.getStats().catch(() => null),
-        api.getSettings().catch(() => ({}))
+        api.getSettings().catch(() => null)
       ]);
-      setCategories(catsData || []);
-      setProducts(prodsData || []);
+      if (Array.isArray(catsData) && catsData.length > 0) {
+        setCategories(catsData);
+      }
+      if (Array.isArray(prodsData) && prodsData.length > 0) {
+        setProducts(prodsData);
+      }
       if (statsData) setStats(statsData);
       if (settingsData && Object.keys(settingsData).length > 0) {
         setSettings(prev => ({ ...prev, ...settingsData }));
       }
     } catch (err) {
-      console.error('Failed to load menu data:', err);
-    } finally {
-      setLoading(false);
+      console.warn('API unavailable, keeping default menu data:', err);
     }
   }, []);
 
