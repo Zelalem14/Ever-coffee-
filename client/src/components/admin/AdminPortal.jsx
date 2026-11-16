@@ -16,7 +16,8 @@ import {
   Sun,
   LayoutDashboard,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Key
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useMenu } from '../../context/MenuContext';
@@ -26,6 +27,7 @@ import { api } from '../../api/api';
 import AdminStats from './AdminStats';
 import AdminProductsTable from './AdminProductsTable';
 import AdminCategoriesTable from './AdminCategoriesTable';
+import AdminAccountSettings from './AdminAccountSettings';
 import AdminUsersTable from './AdminUsersTable';
 import AdminLogsTable from './AdminLogsTable';
 
@@ -104,6 +106,7 @@ export default function AdminPortal() {
     { id: 'overview', label: 'Overview & Stats', icon: LayoutDashboard },
     { id: 'items', label: 'Menu Items', icon: Coffee },
     { id: 'categories', label: 'Categories', icon: Layers },
+    { id: 'account', label: 'Account & Security', icon: Key },
     ...(isManager ? [{ id: 'users', label: 'Users & Roles', icon: Users }] : []),
     ...(isManager ? [{ id: 'logs', label: 'Activity Logs', icon: Activity }] : []),
     { id: 'settings', label: 'Branding & Phone', icon: SettingsIcon }
@@ -335,6 +338,7 @@ export default function AdminPortal() {
                 {activeTab === 'overview' ? 'Dashboard Overview' :
                  activeTab === 'items' ? 'Menu Items Management' :
                  activeTab === 'categories' ? 'Menu Categories' :
+                 activeTab === 'account' ? 'Admin Account & Security' :
                  activeTab === 'users' ? 'User Accounts & Roles' :
                  activeTab === 'logs' ? 'Activity & Security Logs' :
                  'Branding & Phone Settings'}
@@ -395,17 +399,22 @@ export default function AdminPortal() {
             <AdminCategoriesTable />
           )}
 
-          {/* TAB 4: USERS & ROLES */}
+          {/* TAB 4: ADMIN ACCOUNT & SECURITY CREDENTIALS */}
+          {activeTab === 'account' && (
+            <AdminAccountSettings />
+          )}
+
+          {/* TAB 5: USERS & ROLES */}
           {activeTab === 'users' && isManager && (
             <AdminUsersTable />
           )}
 
-          {/* TAB 5: AUDIT LOGS */}
+          {/* TAB 6: AUDIT LOGS */}
           {activeTab === 'logs' && isManager && (
             <AdminLogsTable />
           )}
 
-          {/* TAB 6: BRANDING & SETTINGS */}
+          {/* TAB 7: BRANDING & SETTINGS */}
           {activeTab === 'settings' && (
             <div className="bg-white dark:bg-[#2A170D] rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] p-4 sm:p-8 shadow-xs max-w-2xl mx-auto">
               <form onSubmit={handleSaveSettings} className="space-y-4 sm:space-y-5">

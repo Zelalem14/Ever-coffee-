@@ -116,27 +116,27 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-[#E8DFC8] max-h-[92vh] flex flex-col pb-safe"
+        className="relative w-full max-w-lg bg-white dark:bg-[#1F1009] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border-t sm:border border-[#E8DFC8] dark:border-[#3A2012] max-h-[92vh] flex flex-col pb-safe"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Drag Handle */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-[#FAF6F0]">
-          <div className="w-12 h-1.5 rounded-full bg-[#D7CCC8]" />
+        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0 bg-[#FAF6F0] dark:bg-[#120804]">
+          <div className="w-12 h-1.5 rounded-full bg-[#D7CCC8] dark:bg-[#3A2012]" />
         </div>
 
         {/* Header */}
-        <div className="bg-[#FAF6F0] border-b border-[#E8DFC8] p-4 sm:p-5 flex items-center justify-between shrink-0">
+        <div className="bg-[#FAF6F0] dark:bg-[#120804] border-b border-[#E8DFC8] dark:border-[#3A2012] p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div>
-            <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2C1810]">
+            <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2C1810] dark:text-[#FAF4ED]">
               {isEdit ? `Edit: ${productToEdit.name}` : 'Add New Menu Item'}
             </h3>
-            <p className="text-xs text-[#8D6E63]">
-              Configure item name, price (ETB), and category
+            <p className="text-xs text-[#8D6E63] dark:text-[#A89080]">
+              Configure item name, price (ETB), category, and image
             </p>
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#A1887F] hover:text-[#2C1810] hover:bg-[#EFEBE9] transition-colors"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#A1887F] hover:text-[#2C1810] dark:hover:text-[#FAF4ED] hover:bg-[#EFEBE9] dark:hover:bg-[#2A170D] transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -144,16 +144,16 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto bg-white flex-1">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto bg-white dark:bg-[#1F1009] flex-1">
           {error && (
-            <div className="p-3 rounded-xl bg-red-50 text-red-700 text-xs font-medium border border-red-200">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-medium border border-red-200 dark:border-red-900">
               {error}
             </div>
           )}
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
               Item Name *
             </label>
             <input
@@ -162,21 +162,21 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Buna, Macchiato, Sun Chips"
-              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] text-base sm:text-sm text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
             />
           </div>
 
           {/* Category & Price */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
                 Menu Section *
               </label>
               <select
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full min-h-[44px] px-3 py-2.5 rounded-xl border border-[#D7CCC8] text-base sm:text-sm text-[#2C1810] bg-white focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                className="w-full min-h-[44px] px-3 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] bg-white dark:bg-[#120804] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               >
                 <option value="">Select Section</option>
                 {categories.map((c) => (
@@ -188,7 +188,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
                 Price (ETB) *
               </label>
               <div className="relative">
@@ -201,9 +201,9 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
                   value={priceEtb}
                   onChange={(e) => setPriceEtb(e.target.value)}
                   placeholder="e.g. 45"
-                  className="w-full min-h-[44px] pl-3.5 pr-14 py-2.5 rounded-xl border border-[#D7CCC8] text-base sm:text-sm font-semibold text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                  className="w-full min-h-[44px] pl-3.5 pr-14 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm font-semibold text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8D6E63] pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8D6E63] dark:text-[#D69E76] pointer-events-none">
                   ETB
                 </span>
               </div>
@@ -212,7 +212,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
               Description (Optional)
             </label>
             <textarea
@@ -220,13 +220,13 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Short description of this coffee drink or snack..."
-              className="w-full p-3 rounded-xl border border-[#D7CCC8] text-base sm:text-sm text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 resize-none"
+              className="w-full p-3 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 resize-none"
             />
           </div>
 
           {/* Amharic Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76] mb-1">
               Amharic Description (አማርኛ - Optional)
             </label>
             <textarea
@@ -234,22 +234,22 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
               value={descriptionAm}
               onChange={(e) => setDescriptionAm(e.target.value)}
               placeholder="የመጠጡ ወይም የምግቡ አጭር መግለጫ በአማርኛ..."
-              className="w-full p-3 rounded-xl border border-[#D7CCC8] text-base sm:text-sm text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 resize-none"
+              className="w-full p-3 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 resize-none"
             />
           </div>
 
           {/* Picture Upload / URL */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#5D4037]">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#5D4037] dark:text-[#D69E76]">
                 Product Picture
               </label>
-              <div className="flex items-center gap-1 bg-[#FAF6F0] p-1 rounded-lg border border-[#E8DFC8]">
+              <div className="flex items-center gap-1 bg-[#FAF6F0] dark:bg-[#2A170D] p-1 rounded-lg border border-[#E8DFC8] dark:border-[#3A2012]">
                 <button
                   type="button"
                   onClick={() => setImageMode('upload')}
                   className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                    imageMode === 'upload' ? 'bg-[#3E2723] text-white shadow-2xs' : 'text-[#8D6E63]'
+                    imageMode === 'upload' ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs' : 'text-[#8D6E63] dark:text-[#A89080]'
                   }`}
                 >
                   Upload File
@@ -258,7 +258,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
                   type="button"
                   onClick={() => setImageMode('url')}
                   className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                    imageMode === 'url' ? 'bg-[#3E2723] text-white shadow-2xs' : 'text-[#8D6E63]'
+                    imageMode === 'url' ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs' : 'text-[#8D6E63] dark:text-[#A89080]'
                   }`}
                 >
                   Image URL
@@ -267,9 +267,9 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
             </div>
 
             {imageMode === 'upload' ? (
-              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-[#D7CCC8] rounded-xl hover:border-[#8D6E63] hover:bg-[#FAF6F0] cursor-pointer transition-colors min-h-[90px]">
-                <Upload className="w-5 h-5 text-[#8D6E63] mb-1" />
-                <span className="text-xs font-medium text-[#5D4037]">
+              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-[#D7CCC8] dark:border-[#3A2012] rounded-xl hover:border-[#8D6E63] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D] cursor-pointer transition-colors min-h-[90px]">
+                <Upload className="w-5 h-5 text-[#8D6E63] dark:text-[#D69E76] mb-1" />
+                <span className="text-xs font-medium text-[#5D4037] dark:text-[#FAF4ED]">
                   {uploading ? 'Uploading image...' : 'Tap to take photo or choose file'}
                 </span>
                 <input
@@ -286,25 +286,25 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] text-base sm:text-sm text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#120804] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               />
             )}
 
             {/* Thumbnail preview */}
             {imageUrl && (
-              <div className="flex items-center gap-3 p-2 bg-[#FAF6F0] rounded-xl border border-[#E8DFC8]">
+              <div className="flex items-center gap-3 p-2 bg-[#FAF6F0] dark:bg-[#2A170D] rounded-xl border border-[#E8DFC8] dark:border-[#3A2012]">
                 <img
                   src={imageUrl}
                   alt="Preview"
-                  className="w-12 h-12 object-cover rounded-lg border border-[#D7CCC8]"
+                  className="w-12 h-12 object-cover rounded-lg border border-[#D7CCC8] dark:border-[#3A2012]"
                 />
-                <span className="text-xs text-[#8D6E63] truncate flex-1">
+                <span className="text-xs text-[#8D6E63] dark:text-[#A89080] truncate flex-1">
                   Image selected
                 </span>
                 <button
                   type="button"
                   onClick={() => setImageUrl('')}
-                  className="text-xs text-rose-600 hover:underline min-h-[36px] px-2 flex items-center"
+                  className="text-xs text-rose-600 dark:text-rose-400 hover:underline min-h-[36px] px-2 flex items-center"
                 >
                   Remove
                 </button>
@@ -314,14 +314,14 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
           {/* Availability Checkbox */}
           <div className="pt-2">
-            <label className="flex items-center gap-3 p-3 bg-[#FAF6F0] rounded-xl border border-[#E8DFC8] cursor-pointer min-h-[48px]">
+            <label className="flex items-center gap-3 p-3 bg-[#FAF6F0] dark:bg-[#2A170D] rounded-xl border border-[#E8DFC8] dark:border-[#3A2012] cursor-pointer min-h-[48px]">
               <input
                 type="checkbox"
                 checked={isAvailable}
                 onChange={(e) => setIsAvailable(e.target.checked)}
-                className="w-5 h-5 rounded text-[#3E2723] focus:ring-[#8D6E63]"
+                className="w-5 h-5 rounded text-[#3E2723] dark:text-[#D4AF37] focus:ring-[#8D6E63]"
               />
-              <span className="text-xs sm:text-sm font-semibold text-[#2C1810]">
+              <span className="text-xs sm:text-sm font-semibold text-[#2C1810] dark:text-[#FAF4ED]">
                 Available / In Stock for customers
               </span>
             </label>
@@ -332,14 +332,14 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 min-h-[48px] py-3 rounded-xl text-xs sm:text-sm font-semibold text-[#5D4037] bg-[#FAF6F0] hover:bg-[#EFEBE9] border border-[#D7CCC8] active:scale-95 transition-all"
+              className="flex-1 min-h-[48px] py-3 rounded-xl text-xs sm:text-sm font-semibold text-[#5D4037] dark:text-[#FAF4ED] bg-[#FAF6F0] dark:bg-[#2A170D] hover:bg-[#EFEBE9] dark:hover:bg-[#3A2012] border border-[#D7CCC8] dark:border-[#3A2012] active:scale-95 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || uploading}
-              className="flex-1 min-h-[48px] py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3E2723] hover:bg-[#2C1810] active:scale-95 disabled:opacity-50 transition-all shadow-xs"
+              className="flex-1 min-h-[48px] py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 disabled:opacity-50 transition-all shadow-xs"
             >
               {submitting ? 'Saving...' : isEdit ? 'Update Item' : 'Add Item to Menu'}
             </button>

@@ -6,17 +6,41 @@ import bcrypt from 'bcryptjs';
 import { initialCategories, initialProducts } from './seedData.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = path.resolve(__dirname, '../data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+
+let dataDir = path.resolve(__dirname, '../data');
+try {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+} catch (e) {
+  dataDir = '/tmp';
 }
 
-const uploadsDir = path.resolve(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+let uploadsDir = path.resolve(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  uploadsDir = path.join(dataDir, 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 
-const dbPath = path.join(dataDir, 'coffeehouse.db');
+let dbPath = path.join(dataDir, 'coffeehouse.db');
+// If running on serverless (/tmp) and source database template exists, copy it over
+if (dataDir === '/tmp') {
+  const sourceDb = path.resolve(__dirname, '../data/coffeehouse.db');
+  if (fs.existsSync(sourceDb) && !fs.existsSync(dbPath)) {
+    try {
+      fs.copyFileSync(sourceDb, dbPath);
+    } catch (copyErr) {
+      console.warn('Could not copy template db to /tmp, will initialize fresh:', copyErr.message);
+    }
+  }
+}
+
 export const db = new DatabaseSync(dbPath);
 
 // Initialize Tables

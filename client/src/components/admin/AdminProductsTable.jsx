@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit3, Trash2, CheckCircle2, AlertCircle, Coffee } from 'lucide-react';
+import { Plus, Search, Edit3, Trash2, Coffee } from 'lucide-react';
 import { api } from '../../api/api';
 import { useMenu } from '../../context/MenuContext';
 import { useToast } from '../../context/ToastContext';
@@ -81,7 +81,7 @@ export default function AdminProductsTable() {
     <div className="space-y-4">
       
       {/* Top Action & Search Bar */}
-      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#E8DFC8] shadow-xs space-y-3">
+      <div className="bg-white dark:bg-[#1F1009] p-3.5 sm:p-4 rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs space-y-3">
         
         {/* Search */}
         <div className="relative">
@@ -91,7 +91,7 @@ export default function AdminProductsTable() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search items by name..."
-            className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-[#FAF6F0] border border-[#D7CCC8] text-sm text-[#2C1810] placeholder:text-[#A1887F] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
+            className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-sm text-[#2C1810] dark:text-[#FAF4ED] placeholder:text-[#A1887F] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
           />
         </div>
 
@@ -100,7 +100,7 @@ export default function AdminProductsTable() {
           <select
             value={selectedCat}
             onChange={(e) => setSelectedCat(e.target.value)}
-            className="min-h-[44px] py-2 px-3 rounded-xl bg-[#FAF6F0] border border-[#D7CCC8] text-xs sm:text-sm text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 cursor-pointer font-medium"
+            className="min-h-[44px] py-2 px-3 rounded-xl bg-[#FAF6F0] dark:bg-[#120804] border border-[#D7CCC8] dark:border-[#3A2012] text-xs sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 cursor-pointer font-medium"
           >
             <option value="all">All Items ({products.length})</option>
             {categories.map((c) => (
@@ -112,7 +112,7 @@ export default function AdminProductsTable() {
 
           <button
             onClick={handleOpenAdd}
-            className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-[#3E2723] hover:bg-[#2C1810] active:scale-95 shadow-xs transition-all shrink-0"
+            className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white dark:text-[#120804] bg-[#3E2723] dark:bg-[#D4AF37] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 shadow-xs transition-all shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Item</span>
@@ -124,7 +124,7 @@ export default function AdminProductsTable() {
       {/* ================= MOBILE VIEW: TOUCH-FRIENDLY CARDS (block md:hidden) ================= */}
       <div className="block md:hidden space-y-3">
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center text-[#8D6E63] border border-[#E8DFC8]">
+          <div className="bg-white dark:bg-[#1F1009] rounded-2xl p-8 text-center text-[#8D6E63] dark:text-[#A89080] border border-[#E8DFC8] dark:border-[#3A2012]">
             No items found matching your filter.
           </div>
         ) : (
@@ -133,11 +133,11 @@ export default function AdminProductsTable() {
             return (
               <div 
                 key={product.id}
-                className="bg-white rounded-2xl p-3.5 border border-[#E8DFC8] shadow-2xs space-y-3"
+                className="bg-white dark:bg-[#1F1009] rounded-2xl p-3.5 border border-[#E8DFC8] dark:border-[#3A2012] shadow-2xs space-y-3"
               >
                 {/* Header: Thumbnail + Title + Price */}
                 <div className="flex items-start gap-3">
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#FAF6F0] shrink-0 border border-[#E8DFC8]">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -153,27 +153,27 @@ export default function AdminProductsTable() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">
-                      <h4 className="font-serif font-bold text-base text-[#2C1810] leading-snug truncate">
+                      <h4 className="font-serif font-bold text-base text-[#2C1810] dark:text-[#FAF4ED] leading-snug truncate">
                         {product.name}
                       </h4>
                       <div className="text-right shrink-0">
-                        <span className="font-serif font-black text-base text-[#3E2723]">
+                        <span className="font-serif font-black text-base text-[#3E2723] dark:text-[#D4AF37]">
                           {product.price_etb}
                         </span>
-                        <span className="text-[10px] font-bold text-[#8D6E63] ml-0.5">
+                        <span className="text-[10px] font-bold text-[#8D6E63] dark:text-[#A89080] ml-0.5">
                           ETB
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-semibold text-[#4E342E] bg-[#EFEBE9] px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-semibold text-[#4E342E] dark:text-[#D69E76] bg-[#EFEBE9] dark:bg-[#2A170D] px-2 py-0.5 rounded-md">
                         {product.category_name}
                       </span>
                     </div>
 
                     {product.description && (
-                      <p className="text-xs text-[#8D6E63] line-clamp-1 mt-1">
+                      <p className="text-xs text-[#8D6E63] dark:text-[#A89080] line-clamp-1 mt-1">
                         {product.description}
                       </p>
                     )}
@@ -181,15 +181,15 @@ export default function AdminProductsTable() {
                 </div>
 
                 {/* Mobile Action Controls with min 44px touch targets */}
-                <div className="pt-2.5 border-t border-[#F5EBE1] flex items-center justify-between gap-2">
+                <div className="pt-2.5 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between gap-2">
                   
                   {/* Availability Toggle */}
                   <button
                     onClick={() => handleToggleAvailability(product)}
                     className={`flex-1 flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold active:scale-95 transition-all ${
                       isAvail
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        : 'bg-rose-50 text-rose-800 border border-rose-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
                     }`}
                   >
                     <span className={`w-2 h-2 rounded-full ${isAvail ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
@@ -199,7 +199,7 @@ export default function AdminProductsTable() {
                   {/* Edit Button */}
                   <button
                     onClick={() => handleOpenEdit(product)}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#EFEBE9] text-[#4E342E] hover:bg-[#D7CCC8] active:scale-95 transition-colors border border-[#D7CCC8]/60"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] active:scale-95 transition-colors border border-[#D7CCC8]/60 dark:border-[#3A2012]"
                     title="Edit Item"
                     aria-label={`Edit ${product.name}`}
                   >
@@ -209,7 +209,7 @@ export default function AdminProductsTable() {
                   {/* Delete Button */}
                   <button
                     onClick={() => handleOpenDelete(product)}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 active:scale-95 transition-colors border border-rose-200"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 active:scale-95 transition-colors border border-rose-200 dark:border-rose-900"
                     title="Delete Item"
                     aria-label={`Delete ${product.name}`}
                   >
@@ -225,11 +225,11 @@ export default function AdminProductsTable() {
       </div>
 
       {/* ================= DESKTOP VIEW: FULL TABLE (hidden md:block) ================= */}
-      <div className="hidden md:block bg-white rounded-2xl border border-[#E8DFC8] overflow-hidden shadow-xs">
+      <div className="hidden md:block bg-white dark:bg-[#1F1009] rounded-2xl border border-[#E8DFC8] dark:border-[#3A2012] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#E8DFC8] bg-[#FAF6F0] text-[11px] font-bold uppercase tracking-wider text-[#8D6E63]">
+              <tr className="border-b border-[#E8DFC8] dark:border-[#3A2012] bg-[#FAF6F0] dark:bg-[#120804] text-[11px] font-bold uppercase tracking-wider text-[#8D6E63] dark:text-[#A89080]">
                 <th className="py-3 px-4">Item</th>
                 <th className="py-3 px-4">Section</th>
                 <th className="py-3 px-4">Price (ETB)</th>
@@ -237,10 +237,10 @@ export default function AdminProductsTable() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F5EBE1] text-xs text-[#3E2723]">
+            <tbody className="divide-y divide-[#F5EBE1] dark:divide-[#3A2012] text-xs text-[#3E2723] dark:text-[#FAF4ED]">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[#8D6E63]">
+                  <td colSpan={5} className="py-8 text-center text-[#8D6E63] dark:text-[#A89080]">
                     No items found matching your filter.
                   </td>
                 </tr>
@@ -250,12 +250,12 @@ export default function AdminProductsTable() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-[#FDFBF7] transition-colors"
+                      className="hover:bg-[#FDFBF7] dark:hover:bg-[#2A170D] transition-colors"
                     >
                       {/* Item Thumbnail & Name */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl overflow-hidden bg-[#FAF6F0] shrink-0 border border-[#E8DFC8]">
+                          <div className="w-11 h-11 rounded-xl overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D] shrink-0 border border-[#E8DFC8] dark:border-[#3A2012]">
                             <img
                               src={product.image_url}
                               alt={product.name}
@@ -263,10 +263,10 @@ export default function AdminProductsTable() {
                             />
                           </div>
                           <div>
-                            <span className="font-semibold text-[#2C1810] block text-sm">
+                            <span className="font-semibold text-[#2C1810] dark:text-[#FAF4ED] block text-sm">
                               {product.name}
                             </span>
-                            <span className="text-[11px] text-[#8D6E63] line-clamp-1 max-w-xs">
+                            <span className="text-[11px] text-[#8D6E63] dark:text-[#A89080] line-clamp-1 max-w-xs">
                               {product.description}
                             </span>
                           </div>
@@ -275,14 +275,14 @@ export default function AdminProductsTable() {
 
                       {/* Section / Category */}
                       <td className="py-3 px-4">
-                        <span className="text-xs font-medium text-[#4E342E] bg-[#EFEBE9] px-2.5 py-1 rounded-md border border-[#D7CCC8]/60">
+                        <span className="text-xs font-medium text-[#4E342E] dark:text-[#D69E76] bg-[#EFEBE9] dark:bg-[#2A170D] px-2.5 py-1 rounded-md border border-[#D7CCC8]/60 dark:border-[#3A2012]">
                           {product.category_name}
                         </span>
                       </td>
 
                       {/* Price in ETB */}
-                      <td className="py-3 px-4 font-serif font-bold text-sm text-[#2C1810]">
-                        {product.price_etb} <span className="text-[10px] text-[#8D6E63] font-sans font-semibold">ETB</span>
+                      <td className="py-3 px-4 font-serif font-bold text-sm text-[#2C1810] dark:text-[#D4AF37]">
+                        {product.price_etb} <span className="text-[10px] text-[#8D6E63] dark:text-[#A89080] font-sans font-semibold">ETB</span>
                       </td>
 
                       {/* Instant Toggle Availability */}
@@ -291,8 +291,8 @@ export default function AdminProductsTable() {
                           onClick={() => handleToggleAvailability(product)}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
                             isAvail
-                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
+                              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-900 hover:bg-rose-100'
                           }`}
                           title="Click to toggle availability"
                         >
@@ -306,14 +306,14 @@ export default function AdminProductsTable() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(product)}
-                            className="p-2 rounded-lg bg-[#EFEBE9] text-[#4E342E] hover:bg-[#D7CCC8] transition-colors"
+                            className="p-2 rounded-lg bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] dark:hover:bg-[#3A2012] transition-colors"
                             title="Edit Item"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenDelete(product)}
-                            className="p-2 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors"
+                            className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors"
                             title="Delete Item"
                           >
                             <Trash2 className="w-4 h-4" />

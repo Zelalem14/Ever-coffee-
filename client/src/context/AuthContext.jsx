@@ -89,6 +89,27 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const changeCredentials = async (credentialsPayload) => {
+    const data = await api.changeCredentials(credentialsPayload);
+    if (data.token) {
+      localStorage.setItem('coffeehouse_token', data.token);
+      setToken(data.token);
+    }
+    if (data.user) {
+      setUser(data.user);
+    }
+    resetInactivityTimer();
+    return data;
+  };
+
+  const updateProfile = async (profilePayload) => {
+    const data = await api.updateProfile(profilePayload);
+    if (data.user) {
+      setUser(prev => ({ ...prev, ...data.user }));
+    }
+    return data;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -101,6 +122,8 @@ export function AuthProvider({ children }) {
         loading,
         login,
         logout,
+        changeCredentials,
+        updateProfile,
         showLoginModal,
         setShowLoginModal,
         isAdminOpen,

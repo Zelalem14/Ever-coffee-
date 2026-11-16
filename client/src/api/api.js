@@ -9,79 +9,166 @@ function getAuthHeaders() {
   return headers;
 }
 
+/**
+ * Robust response handler that safely parses responses without ever throwing
+ * "Unexpected end of JSON input". Handles 204 No Content, HTML error pages,
+ * server 500s, and returns user-friendly error messages.
+ */
+async function handleResponse(res) {
+  // If no content status (204)
+  if (res.status === 204) {
+    return null;
+  }
+
+  // Safely read response text first
+  let text = '';
+  try {
+    text = await res.text();
+  } catch (err) {
+    throw new Error('Unable to read server response. Please verify network connectivity.');
+  }
+
+  // Attempt to parse JSON safely if non-empty
+  let data = null;
+  if (text && text.trim().length > 0) {
+    try {
+      data = JSON.parse(text);
+    } catch (parseErr) {
+      // Body is not JSON (e.g. HTML 404, 502/504 gateway error, or plain text)
+      console.warn('Non-JSON response received from server:', text.slice(0, 150));
+    }
+  }
+
+  // If response status is not OK (2xx), produce a clear, human-understandable error
+  if (!res.ok) {
+    if (data && data.error) {
+      throw new Error(data.error);
+    }
+    if (data && data.message) {
+      throw new Error(data.message);
+    }
+
+    if (res.status === 401) {
+      throw new Error('Invalid username or password. Please verify your credentials.');
+    }
+    if (res.status === 403) {
+      throw new Error('Access Denied: You do not have permission to perform this administrative action.');
+    }
+    if (res.status === 404) {
+      throw new Error('API service endpoint not found (404). Please ensure the backend server is running.');
+    }
+    if (res.status === 405) {
+      throw new Error('API Method Not Allowed (405). Ensure the backend server is active and accessible.');
+    }
+    if (res.status === 429) {
+      throw new Error('Too many requests. For your security, please wait a few moments before trying again.');
+    }
+    if (res.status >= 500) {
+      throw new Error(`Server error (${res.status}). Please check the backend server logs.`);
+    }
+
+    throw new Error(`Request failed with status ${res.status}.`);
+  }
+
+  // Return parsed data or empty object if body was empty
+  return data ?? {};
+}
+
+/**
+ * Universal safe fetch wrapper that catches network errors and non-JSON responses
+ */
+async function safeFetch(url, options = {}) {
+  try {
+    const res = await fetch(url, options);
+    return await handleResponse(res);
+  } catch (err) {
+    // If it's already an Error with a human-readable message from handleResponse, rethrow it
+    if (err.message && !err.message.includes('Failed to execute') && !err.message.includes('Unexpected end of JSON')) {
+      throw err;
+    }
+    // Network failure (e.g. server offline, ECONNREFUSED, CORS failed)
+    console.error('API Network Connection Error:', err);
+    throw new Error('Cannot connect to the backend server. Please verify your internet connection and ensure the server is running.');
+  }
+}
+
 export const api = {
-  // Auth
+  // ================= AUTHENTICATION =================
   async login(username, password) {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    return await safeFetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Login failed');
-    return data;
   },
 
   async logout() {
     try {
-      await fetch(`${API_BASE}/auth/logout`, {
+      await safeFetch(`${API_BASE}/auth/logout`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
     } catch (e) {
-      // ignore network errors on logout
+      // Ignore network errors during logout
     }
   },
 
   async verifyAuth() {
-    const res = await fetch(`${API_BASE}/auth/verify`, {
+    return await safeFetch(`${API_BASE}/auth/verify`, {
       headers: getAuthHeaders()
     });
-    if (!res.ok) throw new Error('Auth verification failed');
-    return await res.json();
   },
 
-  // Categories
-  async getCategories() {
-    const res = await fetch(`${API_BASE}/categories`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch categories');
-    return data;
-  },
-
-  async createCategory(payload) {
-    const res = await fetch(`${API_BASE}/categories`, {
-      method: 'POST',
+  async changeCredentials({ currentPassword, newUsername, newPassword, confirmPassword }) {
+    return await safeFetch(`${API_BASE}/auth/change-credentials`, {
+      method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        currentPassword,
+        newUsername,
+        newPassword,
+        confirmPassword
+      })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create category');
-    return data;
   },
 
-  async updateCategory(id, payload) {
-    const res = await fetch(`${API_BASE}/categories/${id}`, {
+  async updateProfile(payload) {
+    return await safeFetch(`${API_BASE}/auth/profile`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update category');
-    return data;
+  },
+
+  // ================= CATEGORIES =================
+  async getCategories() {
+    return await safeFetch(`${API_BASE}/categories`);
+  },
+
+  async createCategory(payload) {
+    return await safeFetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async updateCategory(id, payload) {
+    return await safeFetch(`${API_BASE}/categories/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
   },
 
   async deleteCategory(id) {
-    const res = await fetch(`${API_BASE}/categories/${id}`, {
+    return await safeFetch(`${API_BASE}/categories/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete category');
-    return data;
   },
 
-  // Products
+  // ================= PRODUCTS (MENU ITEMS) =================
   async getProducts(params = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
@@ -91,62 +178,44 @@ export const api = {
     });
 
     const url = `${API_BASE}/products${query.toString() ? `?${query.toString()}` : ''}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch products');
-    return data;
+    return await safeFetch(url);
   },
 
   async getProduct(id) {
-    const res = await fetch(`${API_BASE}/products/${id}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch product');
-    return data;
+    return await safeFetch(`${API_BASE}/products/${id}`);
   },
 
   async createProduct(payload) {
-    const res = await fetch(`${API_BASE}/products`, {
+    return await safeFetch(`${API_BASE}/products`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create product');
-    return data;
   },
 
   async updateProduct(id, payload) {
-    const res = await fetch(`${API_BASE}/products/${id}`, {
+    return await safeFetch(`${API_BASE}/products/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update product');
-    return data;
   },
 
   async toggleProductAvailability(id) {
-    const res = await fetch(`${API_BASE}/products/${id}/toggle-availability`, {
+    return await safeFetch(`${API_BASE}/products/${id}/toggle-availability`, {
       method: 'PATCH',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to toggle availability');
-    return data;
   },
 
   async deleteProduct(id) {
-    const res = await fetch(`${API_BASE}/products/${id}`, {
+    return await safeFetch(`${API_BASE}/products/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete product');
-    return data;
   },
 
-  // Image Upload
+  // ================= IMAGE UPLOAD =================
   async uploadImage(file) {
     const formData = new FormData();
     formData.append('image', file);
@@ -155,105 +224,74 @@ export const api = {
     const headers = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${API_BASE}/upload`, {
+    return await safeFetch(`${API_BASE}/upload`, {
       method: 'POST',
       headers,
       body: formData
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to upload image');
-    return data;
   },
 
-  // Stats
+  // ================= STATS & SETTINGS =================
   async getStats() {
-    const res = await fetch(`${API_BASE}/stats`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch stats');
-    return data;
+    return await safeFetch(`${API_BASE}/stats`);
   },
 
-  // Settings
   async getSettings() {
-    const res = await fetch(`${API_BASE}/settings`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch settings');
-    return data;
+    return await safeFetch(`${API_BASE}/settings`);
   },
 
   async updateSettings(payload) {
-    const res = await fetch(`${API_BASE}/settings`, {
+    return await safeFetch(`${API_BASE}/settings`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update settings');
-    return data;
   },
 
-  // Network Info
+  // ================= NETWORK INFO =================
   async getNetworkInfo() {
-    const res = await fetch(`${API_BASE}/network-info`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch network info');
-    return data;
+    return await safeFetch(`${API_BASE}/network-info`);
   },
 
-  // Seed / Reset
+  // ================= SEED DATABASE =================
   async seedDatabase() {
-    const res = await fetch(`${API_BASE}/seed`, {
+    return await safeFetch(`${API_BASE}/seed`, {
       method: 'POST',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to seed database');
-    return data;
   },
 
-  // Users Management (Admin)
+  // ================= USER ACCOUNTS & ROLES =================
   async getUsers() {
-    const res = await fetch(`${API_BASE}/users`, {
+    return await safeFetch(`${API_BASE}/users`, {
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch users');
-    return data;
   },
 
   async createUser(payload) {
-    const res = await fetch(`${API_BASE}/users`, {
+    return await safeFetch(`${API_BASE}/users`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create user');
-    return data;
   },
 
   async updateUser(id, payload) {
-    const res = await fetch(`${API_BASE}/users/${id}`, {
+    return await safeFetch(`${API_BASE}/users/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update user');
-    return data;
   },
 
   async deleteUser(id) {
-    const res = await fetch(`${API_BASE}/users/${id}`, {
+    return await safeFetch(`${API_BASE}/users/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete user');
-    return data;
   },
 
-  // Audit Logs (Security Monitoring)
+  // ================= SECURITY AUDIT LOGS =================
   async getAuditLogs(params = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
@@ -262,21 +300,15 @@ export const api = {
       }
     });
 
-    const res = await fetch(`${API_BASE}/logs?${query.toString()}`, {
+    return await safeFetch(`${API_BASE}/logs?${query.toString()}`, {
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch audit logs');
-    return data;
   },
 
   async pruneAuditLogs() {
-    const res = await fetch(`${API_BASE}/logs/prune`, {
+    return await safeFetch(`${API_BASE}/logs/prune`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to prune audit logs');
-    return data;
   }
 };
