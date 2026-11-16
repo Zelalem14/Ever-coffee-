@@ -1,0 +1,258 @@
+export const initialCategories = [
+  {
+    name: "Drinks",
+    slug: "drinks",
+    description: "Ethiopian traditional coffee, macchiato, tea, fresh juices, and soft drinks.",
+    description_am: "ባህላዊ የኢትዮጵያ ቡና፣ ማኪያቶ፣ ሻይ፣ ትኩስ ጁስ እና ቀዝቃዛ መጠጦች።",
+    icon: "Coffee",
+    display_order: 1
+  },
+  {
+    name: "Snacks and Foods",
+    slug: "foods-snacks",
+    description: "Cheetos, Sun Chips, Loli Chips, biscuits, fresh popcorn, and tasty snacks.",
+    description_am: "ቺቶስ፣ ሰን ቺፕስ፣ ሎሊ ቺፕስ፣ ብስኩቶች እና ትኩስ ፈንዲሻ (ፖፕኮርን)።",
+    icon: "Cookie",
+    display_order: 2
+  }
+];
+
+export const initialProducts = [
+  // ==================== DRINKS ====================
+  {
+    category_slug: "drinks",
+    name: "Ethiopian Coffee (Buna)",
+    description: "Traditional Jebena-brewed fresh Ethiopian highland coffee served with aromatic frankincense.",
+    description_am: "በጀበና የተፈላ ትኩስ የኢትዮጵያ ቡና፣ መዓዛው ደስ የሚል የሀገር ባህል ቡና።",
+    price_etb: 40,
+    image_url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Traditional, Organic"
+  },
+  {
+    category_slug: "drinks",
+    name: "Macchiato",
+    description: "Iconic Ethiopian-style layered double espresso with velvety steamed milk and rich froth.",
+    description_am: "በኢትዮጵያዊ ዘይቤ የተዘጋጀ ኤስፕሬሶ ከትኩስ የፈላ ወተት ጋር።",
+    price_etb: 45,
+    image_url: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Customer Favorite"
+  },
+  {
+    category_slug: "drinks",
+    name: "Tea (Shai)",
+    description: "Aromatic Ethiopian black tea brewed with crushed cloves, cinnamon stick, and fresh mint.",
+    description_am: "በቅርንፉድ፣ ቀረፋ እና ትኩስ ናና የተቀመመ ጣፋጭ ጥቁር ሻይ።",
+    price_etb: 30,
+    image_url: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Spiced, Warm"
+  },
+  {
+    category_slug: "drinks",
+    name: "Milk",
+    description: "Fresh warm whole dairy milk, lightly steamed and served pure or with honey.",
+    description_am: "ትኩስ የላም ወተት በንጹህ ሁኔታ ወይም ከማር ጋር የሚቀርብ።",
+    price_etb: 35,
+    image_url: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 0,
+    is_new: 0,
+    dietary_tags: "Fresh Dairy"
+  },
+  {
+    category_slug: "drinks",
+    name: "Fresh Juice (Spris)",
+    description: "Freshly blended seasonal mango, avocado, or signature layered Ethiopian Spris juice.",
+    description_am: "ከትኩስ ማንጎ፣ አቮካዶ እና ፓፓያ የተዘጋጀ የተፈጥሮ ስፕሪስ ጁስ።",
+    price_etb: 75,
+    image_url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "100% Fresh Fruit"
+  },
+  {
+    category_slug: "drinks",
+    name: "Soft Drinks",
+    description: "Chilled Coca-Cola, Sprite, Fanta, or Pepsi served cold with ice and fresh lemon.",
+    description_am: "ቀዝቃዛ ኮካ ኮላ፣ ስፕራይት፣ ፋንታ ወይም ፔፕሲ።",
+    price_etb: 40,
+    image_url: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Chilled Soda"
+  },
+  {
+    category_slug: "drinks",
+    name: "Bottled Water",
+    description: "Pure natural Ethiopian highland spring water (500ml).",
+    description_am: "ንጹህ የታሸገ የተፈጥሮ የምንጭ ውሃ (500 ሚ.ሊ)።",
+    price_etb: 25,
+    image_url: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 0,
+    is_new: 0,
+    dietary_tags: "Spring Water"
+  },
+  {
+    category_slug: "drinks",
+    name: "Espresso",
+    description: "Concentrated bold shot of pure Ethiopian Arabica with a dense hazelnut crema.",
+    description_am: "ጠንካራ እና ጥራት ያለው ንጹህ የኢትዮጵያ አረቢካ ቡና።",
+    price_etb: 35,
+    image_url: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 0,
+    is_new: 0,
+    dietary_tags: "Bold Roast"
+  },
+  {
+    category_slug: "drinks",
+    name: "Cappuccino",
+    description: "Equal balance of rich espresso, silky steamed milk, and dusted cinnamon-cocoa foam.",
+    description_am: "ኤስፕሬሶ ከትኩስ ወተት እና ለስላሳ አረፋ ጋር በቀረፋ የቀረበ።",
+    price_etb: 60,
+    image_url: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Creamy Froth"
+  },
+  {
+    category_slug: "drinks",
+    name: "Special Spiced Tea",
+    description: "Steeped cardamom, ginger root, cloves, cinnamon, and black whole leaf tea.",
+    description_am: "በዝንጅብል፣ ሄል፣ ቅርንፉድ እና ቀረፋ የተቀመመ ልዩ ሻይ።",
+    price_etb: 40,
+    image_url: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Herbal & Spiced"
+  },
+
+  // ==================== SNACKS AND FOODS ====================
+  {
+    category_slug: "foods-snacks",
+    name: "Cheetos",
+    description: "Crunchy, puffed corn cheese snack packed with savory flavor.",
+    description_am: "ጥርት ያለ እና ጣፋጭ የቺዝ ጣዕም ያለው የታሸገ ቺቶስ መክሰስ።",
+    price_etb: 50,
+    image_url: "https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Packaged Snack"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Sun Chips",
+    description: "Popular local whole-grain Ethiopian chips in paprika, sour cream, or cheese flavor.",
+    description_am: "ተወዳጅ እና ጥርት ያለ የሰን ቺፕስ መክሰስ።",
+    price_etb: 45,
+    image_url: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Crispy Grain Chips"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Loli Chips",
+    description: "Crispy, salted Ethiopian packaged potato chips snack.",
+    description_am: "ጥርት ያለ እና ጨዋማ የታሸገ ሎሊ የድንች ቺፕስ።",
+    price_etb: 40,
+    image_url: "https://images.unsplash.com/photo-1527842891421-42eec6e703ea?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 1,
+    dietary_tags: "Crispy Potato Chips"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Biscuits",
+    description: "Golden butter biscuits and vanilla cream sandwich cookies to pair with tea or buna.",
+    description_am: "ከሻይ ወይም ከቡና ጋር የሚበላ ጣፋጭ የቅቤ እና የክሬም ብስኩት።",
+    price_etb: 30,
+    image_url: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Sweet Biscuits"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Popcorn",
+    description: "Freshly popped, buttery warm popcorn traditionally served alongside hot Jebena Buna.",
+    description_am: "ከቡና ጋር የሚቀርብ ትኩስ እና ጣፋጭ ፈንዲሻ (ፖፕኮርን)።",
+    price_etb: 25,
+    image_url: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Fresh & Warm"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Oreo",
+    description: "Classic rich cocoa cookies with sweet vanilla cream filling.",
+    description_am: "ጣፋጭ ክሬም ያለው የቸኮሌት ኦሪዮ ብስኩት።",
+    price_etb: 40,
+    image_url: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Classic Cookie"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Chocolate Cake Slice",
+    description: "Soft, moist double chocolate sponge cake with fudge icing.",
+    description_am: "ለስላሳ እና ጣፋጭ የቸኮሌት ኬክ ቁራጭ።",
+    price_etb: 70,
+    image_url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 1,
+    is_popular: 0,
+    is_new: 0,
+    dietary_tags: "Fresh Bakery"
+  },
+  {
+    category_slug: "foods-snacks",
+    name: "Salted Peanuts",
+    description: "Crispy pan-roasted Ethiopian peanuts seasoned with sea salt.",
+    description_am: "በጥሩ ሁኔታ የተቆላ እና ትንሽ ጨው ያለው የለውዝ (ኦቾሎኒ)።",
+    price_etb: 30,
+    image_url: "https://images.unsplash.com/photo-1525253086316-d0c936c81468?auto=format&fit=crop&w=800&q=80",
+    is_available: 1,
+    is_featured: 0,
+    is_popular: 1,
+    is_new: 0,
+    dietary_tags: "Roasted Peanuts"
+  }
+];
