@@ -12,12 +12,9 @@ import {
   X, 
   Layers, 
   LayoutGrid, 
-  ListFilter,
-  Sun,
-  Moon
+  ListFilter
 } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
-import { useTheme } from '../context/ThemeContext';
 import MenuCard from './MenuCard';
 
 const iconMap = {
@@ -42,7 +39,6 @@ export default function SimpleMenu() {
     setViewMode 
   } = useMenu();
 
-  const { isDark, toggleTheme } = useTheme();
   const [search, setSearch] = useState('');
 
   // Filter items by search query (English & Amharic)
@@ -143,27 +139,6 @@ export default function SimpleMenu() {
               <ListFilter className="w-4 h-4" />
             </button>
           </div>
-
-          {/* Quick Sticky Theme Toggle Button (Sun / Moon) */}
-          <button
-            onClick={toggleTheme}
-            className={`min-h-[44px] px-3 rounded-xl border flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs shrink-0 ${
-              isDark 
-                ? 'bg-[#2A170D] hover:bg-[#3A2012] border-[#3A2012] text-amber-300' 
-                : 'bg-zinc-100 hover:bg-zinc-200/80 border-zinc-200 text-zinc-800'
-            }`}
-            title={isDark ? "Switch to Bright Mode" : "Switch to Dark Mode"}
-            aria-label={isDark ? "Switch to Bright Mode" : "Switch to Dark Mode"}
-          >
-            {isDark ? (
-              <Sun className="w-4 h-4 text-amber-400 shrink-0" />
-            ) : (
-              <Moon className="w-4 h-4 text-indigo-600 shrink-0" />
-            )}
-            <span className="hidden md:inline text-xs font-semibold">
-              {isDark ? 'Bright' : 'Dark'}
-            </span>
-          </button>
 
         </div>
 
