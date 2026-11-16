@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../db.js';
+import { db, logAudit } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -90,6 +90,17 @@ router.post('/', requireAuth, (req, res) => {
     );
 
     const created = db.prepare('SELECT * FROM categories WHERE id = ?').get(result.lastInsertRowid);
+
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'CATEGORY_CREATED',
+      entityType: 'CATEGORY',
+      entityId: created.id,
+      details: `Created menu category "${created.name}"`,
+      req
+    });
+
     res.status(201).json(created);
   } catch (error) {
     console.error('Error creating category:', error);
@@ -128,6 +139,17 @@ router.put('/:id', requireAuth, (req, res) => {
     `).run(updatedName, updatedSlug, updatedDesc, updatedDescAm, updatedIcon, updatedOrder, Number(id));
 
     const updated = db.prepare('SELECT * FROM categories WHERE id = ?').get(Number(id));
+
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'CATEGORY_UPDATED',
+      entityType: 'CATEGORY',
+      entityId: updated.id,
+      details: `Updated category "${updated.name}"`,
+      req
+    });
+
     res.json(updated);
   } catch (error) {
     console.error('Error updating category:', error);
@@ -146,6 +168,16 @@ router.delete('/:id', requireAuth, (req, res) => {
 
     // Products cascade delete because of FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
     db.prepare('DELETE FROM categories WHERE id = ?').run(Number(id));
+
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'CATEGORY_DELETED',
+      entityType: 'CATEGORY',
+      entityId: id,
+      details: `Deleted category "${category.name}" and cascading products`,
+      req
+    });
 
     res.json({ message: 'Category and associated products deleted successfully', id: Number(id) });
   } catch (error) {

@@ -13,6 +13,8 @@ import productRoutes from './routes/products.js';
 import uploadRoutes from './routes/upload.js';
 import statsRoutes from './routes/stats.js';
 import settingsRoutes from './routes/settings.js';
+import userRoutes from './routes/users.js';
+import logRoutes from './routes/logs.js';
 
 dotenv.config();
 
@@ -20,10 +22,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5050;
 
+// Security Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Serve static uploads
 const uploadsPath = path.resolve(__dirname, '../uploads');
@@ -98,6 +110,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/logs', logRoutes);
 
 // Serve client dist in production if built
 const clientDistPath = path.resolve(__dirname, '../../client/dist');

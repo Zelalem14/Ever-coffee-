@@ -1,67 +1,79 @@
 import React from 'react';
-import { Coffee, Shield, Lock, MapPin, Phone, Smartphone, QrCode } from 'lucide-react';
+import { Coffee, Shield, Lock, MapPin, Phone, Smartphone, QrCode, Sun, Moon } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import MobileQrModal from './MobileQrModal';
 
 export default function Header() {
   const { settings, isMobileQrOpen, setIsMobileQrOpen } = useMenu();
   const { isAuthenticated, setShowLoginModal, isAdminOpen, setIsAdminOpen } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <header className="bg-gradient-to-b from-[#FAF6F0] via-[#FDFBF7] to-white border-b border-[#E8DFC8]/70 pt-3 pb-6 px-3.5 sm:px-6">
+    <header className="bg-gradient-to-b from-[#FAF6F0] via-[#FDFBF7] to-white dark:from-[#1F1009] dark:via-[#1A0E08] dark:to-[#120804] border-b border-[#E8DFC8]/70 dark:border-[#3A2012] pt-3 pb-6 px-3.5 sm:px-6 transition-colors">
       <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
         
         {/* Top utility row: Location, Phone & Quick Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8DFC8]/40 pb-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8DFC8]/40 dark:border-[#3A2012]/60 pb-2.5">
           
           {/* Location & Phone (Clickable Call Link for Mobile Phones) */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#8D6E63] font-medium min-h-[36px]">
-            <span className="inline-flex items-center gap-1 bg-[#FAF6F0] px-2.5 py-1.5 rounded-xl border border-[#E8DFC8]/60">
-              <MapPin className="w-3.5 h-3.5 text-[#A1887F] shrink-0" />
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#8D6E63] dark:text-[#D69E76] font-medium min-h-[36px]">
+            <span className="inline-flex items-center gap-1 bg-[#FAF6F0] dark:bg-[#2A170D] px-2.5 py-1.5 rounded-xl border border-[#E8DFC8]/60 dark:border-[#3A2012]">
+              <MapPin className="w-3.5 h-3.5 text-[#A1887F] dark:text-[#D69E76] shrink-0" />
               <span className="truncate max-w-[140px] xs:max-w-none">{settings.address || 'Addis Ababa, Ethiopia'}</span>
             </span>
 
             <a 
               href={`tel:${(settings.phone || '0970414440').replace(/[^0-9+]/g, '')}`}
-              className="inline-flex items-center gap-1.5 min-h-[36px] bg-[#FAF6F0] px-3 py-1.5 rounded-xl border border-[#D7CCC8] text-[#3E2723] font-semibold hover:bg-[#EFEBE9] hover:border-[#BCAAA4] active:scale-95 transition-all shadow-2xs"
+              className="inline-flex items-center gap-1.5 min-h-[36px] bg-[#FAF6F0] dark:bg-[#2A170D] px-3 py-1.5 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] text-[#3E2723] dark:text-[#FAF4ED] font-semibold hover:bg-[#EFEBE9] dark:hover:bg-[#3A2012] active:scale-95 transition-all shadow-2xs"
               title="Tap to call Ever Coffee House"
             >
-              <Phone className="w-3.5 h-3.5 text-[#5D4037] shrink-0" />
+              <Phone className="w-3.5 h-3.5 text-[#5D4037] dark:text-[#D4AF37] shrink-0" />
               <span>{settings.phone || '0970414440'}</span>
             </a>
           </div>
 
           {/* Header Action Buttons with >=44px touch targets */}
           <div className="flex items-center gap-1.5 ml-auto">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-[#FAF6F0] dark:bg-[#2A170D] text-[#5D4037] dark:text-[#D69E76] hover:bg-[#EFEBE9] active:scale-95 transition-all"
+              title="Toggle theme (Light / Dark)"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-purple-600" />}
+            </button>
+
             {/* Open on Phone / QR Button */}
             <button
               onClick={() => setIsMobileQrOpen(true)}
-              className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold bg-[#FAF6F0] text-[#5D4037] hover:bg-[#EFEBE9] active:bg-[#D7CCC8] border border-[#D7CCC8] transition-colors shadow-2xs"
+              className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold bg-[#FAF6F0] dark:bg-[#2A170D] text-[#5D4037] dark:text-[#FAF4ED] hover:bg-[#EFEBE9] active:bg-[#D7CCC8] border border-[#D7CCC8] dark:border-[#3A2012] transition-colors shadow-2xs"
               title="Open on mobile phone via Wi-Fi QR"
               aria-label="Open mobile QR code"
             >
-              <QrCode className="w-4 h-4 text-[#795548]" />
+              <QrCode className="w-4 h-4 text-[#795548] dark:text-[#D4AF37]" />
               <span className="hidden xs:inline">QR</span> Code
             </button>
 
             {isAuthenticated ? (
               <button
                 onClick={() => setIsAdminOpen(!isAdminOpen)}
-                className="flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-xl text-xs font-semibold bg-[#4E342E] text-white hover:bg-[#3E2723] active:scale-95 transition-all shadow-xs"
+                className="flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-xl text-xs font-semibold bg-[#4E342E] dark:bg-[#D4AF37] text-white dark:text-[#120804] hover:bg-[#3E2723] dark:hover:bg-[#E9C053] active:scale-95 transition-all shadow-xs"
                 aria-label="Toggle Admin Portal"
               >
-                <Shield className="w-4 h-4 text-[#FFE082]" />
+                <Shield className="w-4 h-4 text-[#FFE082] dark:text-[#120804]" />
                 <span>{isAdminOpen ? 'Menu' : 'Admin'}</span>
               </button>
             ) : (
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold text-[#8D6E63] hover:text-[#3E2723] hover:bg-[#FAF6F0] active:bg-[#EFEBE9] border border-transparent hover:border-[#D7CCC8] transition-colors"
+                className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-semibold text-[#8D6E63] dark:text-[#D69E76] hover:text-[#3E2723] dark:hover:text-[#FAF4ED] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D] active:bg-[#EFEBE9] border border-transparent hover:border-[#D7CCC8] dark:hover:border-[#3A2012] transition-colors"
                 title="Admin Login"
                 aria-label="Admin Login"
               >
-                <Lock className="w-3.5 h-3.5 text-[#A1887F]" />
+                <Lock className="w-3.5 h-3.5 text-[#A1887F] dark:text-[#D69E76]" />
                 <span className="hidden xs:inline">Admin</span>
               </button>
             )}
@@ -77,32 +89,32 @@ export default function Header() {
               <img
                 src={settings.logo_url}
                 alt={settings.coffee_house_name || 'Ever Coffee House'}
-                className="w-16 h-16 xs:w-18 xs:h-18 sm:w-20 sm:h-20 object-contain rounded-2xl shadow-md border-2 border-[#D7CCC8]/50 p-1 bg-white"
+                className="w-16 h-16 xs:w-18 xs:h-18 sm:w-20 sm:h-20 object-contain rounded-2xl shadow-md border-2 border-[#D7CCC8]/50 dark:border-[#3A2012] p-1 bg-white dark:bg-[#2A170D]"
               />
             ) : (
-              <div className="w-16 h-16 xs:w-18 xs:h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#5D4037] via-[#4E342E] to-[#3E2723] flex items-center justify-center text-white shadow-lg shadow-[#3E2723]/20 border-2 border-[#D7CCC8]">
-                <Coffee className="w-8 h-8 xs:w-10 xs:h-10 sm:w-11 sm:h-11 text-[#FFE082]" />
+              <div className="w-16 h-16 xs:w-18 xs:h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#5D4037] via-[#4E342E] to-[#3E2723] dark:from-[#3E2723] dark:via-[#2C1810] dark:to-[#1F1009] flex items-center justify-center text-white shadow-lg shadow-[#3E2723]/20 border-2 border-[#D7CCC8] dark:border-[#D4AF37]/40">
+                <Coffee className="w-8 h-8 xs:w-10 xs:h-10 sm:w-11 sm:h-11 text-[#FFE082] dark:text-[#D4AF37]" />
               </div>
             )}
           </div>
 
           {/* Coffee House Name */}
           <div className="space-y-0.5">
-            <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl font-extrabold text-[#2C1810] tracking-tight leading-tight">
+            <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl font-extrabold text-[#2C1810] dark:text-[#FAF4ED] tracking-tight leading-tight">
               {settings.coffee_house_name || 'Ever Coffee House'}
             </h1>
-            <p className="text-[11px] sm:text-xs uppercase tracking-widest text-[#8D6E63] font-bold">
+            <p className="text-[11px] sm:text-xs uppercase tracking-widest text-[#8D6E63] dark:text-[#D69E76] font-bold">
               Digital Menu
             </p>
           </div>
 
           {/* Welcome Messages (English & Amharic) */}
           <div className="max-w-xl mx-auto space-y-1 px-2">
-            <p className="text-xs xs:text-sm sm:text-base text-[#5D4037] leading-relaxed font-light">
+            <p className="text-xs xs:text-sm sm:text-base text-[#5D4037] dark:text-[#D69E76] leading-relaxed font-light">
               {settings.welcome_message || 'Welcome to Ever Coffee House! Browse our freshly brewed coffee, refreshing drinks, and delicious snacks.'}
             </p>
             {(settings.welcome_message_am || 'እንኳን ወደ ኤቨር ቡና ቤት በደህና መጡ! ትኩስ ቡና፣ መጠጦች እና መክሰሶችን ይመልከቱ።') && (
-              <p className="text-xs sm:text-sm text-[#795548] leading-relaxed font-normal">
+              <p className="text-xs sm:text-sm text-[#795548] dark:text-[#A89080] leading-relaxed font-normal">
                 {settings.welcome_message_am || 'እንኳን ወደ ኤቨር ቡና ቤት በደህና መጡ! ትኩስ ቡና፣ መጠጦች እና መክሰሶችን ይመልከቱ።'}
               </p>
             )}

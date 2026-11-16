@@ -72,7 +72,7 @@ export default function SimpleMenu() {
     <div className="max-w-5xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 space-y-6 pb-28 md:pb-12">
       
       {/* Sticky Mobile-First Navigation Strip */}
-      <div className="sticky top-0 z-30 bg-[#FDFBF7]/95 backdrop-blur-md py-2.5 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 border-b border-[#E8DFC8]/70 space-y-2.5">
+      <div className="sticky top-0 z-30 bg-[#FDFBF7]/95 dark:bg-[#120804]/95 backdrop-blur-md py-2.5 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 border-b border-[#E8DFC8]/70 dark:border-[#3A2012] space-y-2.5 transition-colors">
         
         {/* Search input + View Switcher Row */}
         <div className="flex items-center gap-2">
@@ -85,12 +85,12 @@ export default function SimpleMenu() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search coffee, tea, juice, chips..."
-              className="w-full min-h-[44px] pl-10 pr-9 py-2 rounded-xl border border-[#D7CCC8] text-sm text-[#3E2723] placeholder:text-[#A1887F] bg-white focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 focus:border-[#8D6E63] shadow-2xs"
+              className="w-full min-h-[44px] pl-10 pr-9 py-2 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] text-sm text-[#3E2723] dark:text-[#FAF4ED] placeholder:text-[#A1887F] bg-white dark:bg-[#1F1009] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30 focus:border-[#8D6E63] shadow-2xs"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] flex items-center justify-center text-[#A1887F] hover:text-[#3E2723] active:scale-95"
+                className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] flex items-center justify-center text-[#A1887F] hover:text-[#3E2723] dark:hover:text-[#FAF4ED] active:scale-95"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -99,13 +99,13 @@ export default function SimpleMenu() {
           </div>
 
           {/* Grid vs List View Mode Toggle */}
-          <div className="flex items-center bg-[#EFEBE9] p-1 rounded-xl shrink-0 border border-[#D7CCC8]/60">
+          <div className="flex items-center bg-[#EFEBE9] dark:bg-[#2A170D] p-1 rounded-xl shrink-0 border border-[#D7CCC8]/60 dark:border-[#3A2012]">
             <button
               onClick={() => setViewMode('grid')}
               className={`min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-all ${
                 viewMode === 'grid' 
-                  ? 'bg-white text-[#3E2723] shadow-2xs font-semibold' 
-                  : 'text-[#8D6E63] hover:text-[#3E2723]'
+                  ? 'bg-white dark:bg-[#1F1009] text-[#3E2723] dark:text-[#D4AF37] shadow-2xs font-semibold' 
+                  : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#3E2723]'
               }`}
               title="Grid View"
               aria-label="Grid view"
@@ -116,8 +116,8 @@ export default function SimpleMenu() {
               onClick={() => setViewMode('list')}
               className={`min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-all ${
                 viewMode === 'list' 
-                  ? 'bg-white text-[#3E2723] shadow-2xs font-semibold' 
-                  : 'text-[#8D6E63] hover:text-[#3E2723]'
+                  ? 'bg-white dark:bg-[#1F1009] text-[#3E2723] dark:text-[#D4AF37] shadow-2xs font-semibold' 
+                  : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#3E2723]'
               }`}
               title="List View"
               aria-label="List view"
@@ -135,14 +135,14 @@ export default function SimpleMenu() {
             onClick={() => setActiveTab('all')}
             className={`flex items-center gap-1.5 min-h-[42px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all active:scale-95 ${
               activeTab === 'all'
-                ? 'bg-[#3E2723] text-white shadow-xs'
-                : 'bg-white text-[#5D4037] border border-[#E8DFC8] hover:bg-[#FAF6F0]'
+                ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-xs'
+                : 'bg-white dark:bg-[#1F1009] text-[#5D4037] dark:text-[#D69E76] border border-[#E8DFC8] dark:border-[#3A2012] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
             <span>All Menu</span>
             <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-              activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-[#EFEBE9] text-[#4E342E]'
+              activeTab === 'all' ? 'bg-white/20 text-white dark:text-[#120804]' : 'bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED]'
             }`}>
               {products.length}
             </span>
@@ -158,14 +158,14 @@ export default function SimpleMenu() {
                 onClick={() => setActiveTab(cat.slug)}
                 className={`flex items-center gap-1.5 min-h-[42px] px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all active:scale-95 ${
                   isSelected
-                    ? 'bg-[#3E2723] text-white shadow-xs'
-                    : 'bg-white text-[#5D4037] border border-[#E8DFC8] hover:bg-[#FAF6F0]'
+                    ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-xs'
+                    : 'bg-white dark:bg-[#1F1009] text-[#5D4037] dark:text-[#D69E76] border border-[#E8DFC8] dark:border-[#3A2012] hover:bg-[#FAF6F0] dark:hover:bg-[#2A170D]'
                 }`}
               >
                 {renderCategoryIcon(cat.icon, isSelected)}
                 <span>{cat.name}</span>
                 <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-[#EFEBE9] text-[#4E342E]'
+                  isSelected ? 'bg-white/20 text-white dark:text-[#120804]' : 'bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED]'
                 }`}>
                   {catCount}
                 </span>
@@ -215,23 +215,23 @@ export default function SimpleMenu() {
             return (
               <section key={category.id} id={category.slug} className="space-y-3.5 scroll-mt-24">
                 
-                <div className="flex items-center gap-2.5 pb-2 border-b-2 border-[#D7CCC8]/60">
-                  <div className="w-8 h-8 rounded-xl bg-[#5D4037] text-[#FFE082] flex items-center justify-center shadow-xs shrink-0">
+                <div className="flex items-center gap-2.5 pb-2 border-b-2 border-[#D7CCC8]/60 dark:border-[#3A2012]">
+                  <div className="w-8 h-8 rounded-xl bg-[#5D4037] dark:bg-[#D4AF37] text-[#FFE082] dark:text-[#120804] flex items-center justify-center shadow-xs shrink-0">
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="font-serif text-xl sm:text-2xl font-extrabold text-[#2C1810] tracking-tight uppercase">
+                    <h2 className="font-serif text-xl sm:text-2xl font-extrabold text-[#2C1810] dark:text-[#FAF4ED] tracking-tight uppercase">
                       {category.name}
                     </h2>
                     {(category.description || category.description_am) && (
                       <div className="space-y-0.5">
                         {category.description && (
-                          <p className="text-[11px] sm:text-xs text-[#8D6E63] font-medium truncate">
+                          <p className="text-[11px] sm:text-xs text-[#8D6E63] dark:text-[#D69E76] font-medium truncate">
                             {category.description} ({items.length})
                           </p>
                         )}
                         {category.description_am && (
-                          <p className="text-[11px] sm:text-xs text-[#6D4C41] font-normal truncate">
+                          <p className="text-[11px] sm:text-xs text-[#6D4C41] dark:text-[#A89080] font-normal truncate">
                             {category.description_am}
                           </p>
                         )}

@@ -27,7 +27,7 @@ export default function MobileBottomNav() {
   return (
     <nav 
       aria-label="Mobile Navigation Bar"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DFC8] shadow-[0_-4px_20px_rgba(44,24,16,0.06)] pb-safe"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1F1009]/95 backdrop-blur-md border-t border-[#E8DFC8] dark:border-[#3A2012] shadow-[0_-4px_20px_rgba(44,24,16,0.06)] pb-safe transition-colors"
     >
       <div className="grid grid-cols-5 h-16 max-w-lg mx-auto px-1 items-stretch">
         
@@ -36,13 +36,13 @@ export default function MobileBottomNav() {
           onClick={() => handleTabClick('all')}
           className={`flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 transition-all active:scale-95 ${
             activeTab === 'all'
-              ? 'text-[#3E2723] font-bold'
-              : 'text-[#8D6E63] hover:text-[#5D4037]'
+              ? 'text-[#3E2723] dark:text-[#D4AF37] font-bold'
+              : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#5D4037]'
           }`}
           aria-label="All Menu"
         >
           <div className={`p-1 rounded-xl transition-colors ${
-            activeTab === 'all' ? 'bg-[#EFEBE9]' : ''
+            activeTab === 'all' ? 'bg-[#EFEBE9] dark:bg-[#2A170D]' : ''
           }`}>
             <Layers className="w-5 h-5" />
           </div>
@@ -54,15 +54,15 @@ export default function MobileBottomNav() {
           onClick={() => handleTabClick('drinks')}
           className={`flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 transition-all active:scale-95 ${
             isDrinksActive
-              ? 'text-[#3E2723] font-bold'
-              : 'text-[#8D6E63] hover:text-[#5D4037]'
+              ? 'text-[#3E2723] dark:text-[#D4AF37] font-bold'
+              : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#5D4037]'
           }`}
           aria-label="Drinks"
         >
           <div className={`p-1 rounded-xl transition-colors ${
-            isDrinksActive ? 'bg-[#EFEBE9]' : ''
+            isDrinksActive ? 'bg-[#EFEBE9] dark:bg-[#2A170D]' : ''
           }`}>
-            <Coffee className="w-5 h-5 text-[#8D6E63]" />
+            <Coffee className="w-5 h-5" />
           </div>
           <span className="text-[10px] tracking-tight">Drinks</span>
         </button>
@@ -72,15 +72,15 @@ export default function MobileBottomNav() {
           onClick={() => handleTabClick('foods')}
           className={`flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 transition-all active:scale-95 ${
             isFoodsActive
-              ? 'text-[#3E2723] font-bold'
-              : 'text-[#8D6E63] hover:text-[#5D4037]'
+              ? 'text-[#3E2723] dark:text-[#D4AF37] font-bold'
+              : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#5D4037]'
           }`}
           aria-label="Snacks and Foods"
         >
           <div className={`p-1 rounded-xl transition-colors ${
-            isFoodsActive ? 'bg-[#EFEBE9]' : ''
+            isFoodsActive ? 'bg-[#EFEBE9] dark:bg-[#2A170D]' : ''
           }`}>
-            <Cookie className="w-5 h-5 text-[#8D6E63]" />
+            <Cookie className="w-5 h-5" />
           </div>
           <span className="text-[10px] tracking-tight">Snacks</span>
         </button>
@@ -88,11 +88,11 @@ export default function MobileBottomNav() {
         {/* Tab 4: QR Code */}
         <button
           onClick={() => setIsMobileQrOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 text-[#8D6E63] hover:text-[#5D4037] active:scale-95 transition-all"
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 text-[#8D6E63] dark:text-[#A89080] hover:text-[#5D4037] active:scale-95 transition-all"
           aria-label="Show QR Code"
         >
           <div className="p-1 rounded-xl">
-            <QrCode className="w-5 h-5" />
+            <QrCode className="w-5 h-5 text-[#8D6E63] dark:text-[#D69E76]" />
           </div>
           <span className="text-[10px] tracking-tight">QR Code</span>
         </button>
@@ -102,16 +102,16 @@ export default function MobileBottomNav() {
           onClick={handleAdminClick}
           className={`flex flex-col items-center justify-center gap-1 min-h-[48px] py-1 transition-all active:scale-95 ${
             isAdminOpen 
-              ? 'text-[#3E2723] font-bold' 
-              : 'text-[#8D6E63] hover:text-[#5D4037]'
+              ? 'text-[#3E2723] dark:text-[#D4AF37] font-bold' 
+              : 'text-[#8D6E63] dark:text-[#A89080] hover:text-[#5D4037]'
           }`}
           aria-label="Admin Portal"
         >
-          <div className={`p-1 rounded-xl ${isAdminOpen ? 'bg-[#EFEBE9]' : ''}`}>
+          <div className={`p-1 rounded-xl ${isAdminOpen ? 'bg-[#EFEBE9] dark:bg-[#2A170D]' : ''}`}>
             {isAuthenticated ? (
-              <Shield className="w-5 h-5 text-[#5D4037]" />
+              <Shield className="w-5 h-5 text-[#5D4037] dark:text-[#D4AF37]" />
             ) : (
-              <Lock className="w-5 h-5" />
+              <Lock className="w-5 h-5 text-[#8D6E63] dark:text-[#D69E76]" />
             )}
           </div>
           <span className="text-[10px] tracking-tight">

@@ -61,10 +61,33 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS admins (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
+    email TEXT DEFAULT '',
     password_hash TEXT NOT NULL,
     name TEXT,
     role TEXT DEFAULT 'admin',
+    is_active INTEGER DEFAULT 1,
+    last_login DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    username TEXT,
+    action TEXT NOT NULL,
+    entity_type TEXT,
+    entity_id TEXT,
+    details TEXT,
+    ip_address TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS login_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip_address TEXT NOT NULL,
+    username TEXT,
+    attempt_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    success INTEGER DEFAULT 0
   );
 `);
 
@@ -77,6 +100,26 @@ function ensureColumn(table, column, definition) {
 }
 ensureColumn('categories', 'description_am', "TEXT DEFAULT ''");
 ensureColumn('products', 'description_am', "TEXT DEFAULT ''");
+ensureColumn('admins', 'email', "TEXT DEFAULT ''");
+ensureColumn('admins', 'is_active', "INTEGER DEFAULT 1");
+ensureColumn('admins', 'last_login', "DATETIME");
+
+// Audit Log Helper
+export function logAudit({ userId = null, username = 'system', action, entityType = '', entityId = '', details = '', req = null }) {
+  try {
+    let ip = 'unknown';
+    if (req) {
+      ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.socket?.remoteAddress || '127.0.0.1';
+    }
+    const stmt = db.prepare(`
+      INSERT INTO audit_logs (user_id, username, action, entity_type, entity_id, details, ip_address)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(userId, username, action, entityType, String(entityId), String(details), ip);
+  } catch (err) {
+    console.error('Failed to write audit log:', err.message);
+  }
+}
 
 // Default settings helper
 function initSettings(force = false) {

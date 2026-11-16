@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../db.js';
+import { db, logAudit } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -169,6 +169,16 @@ router.post('/', requireAuth, (req, res) => {
       WHERE p.id = ?
     `).get(result.lastInsertRowid);
 
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'PRODUCT_CREATED',
+      entityType: 'PRODUCT',
+      entityId: created.id,
+      details: `Created menu item "${created.name}" (${created.price_etb} ETB)`,
+      req
+    });
+
     res.status(201).json(created);
   } catch (error) {
     console.error('Error creating product:', error);
@@ -259,6 +269,16 @@ router.put('/:id', requireAuth, (req, res) => {
       WHERE p.id = ?
     `).get(Number(id));
 
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'PRODUCT_UPDATED',
+      entityType: 'PRODUCT',
+      entityId: updated.id,
+      details: `Updated item "${updated.name}" (${updated.price_etb} ETB)`,
+      req
+    });
+
     res.json(updated);
   } catch (error) {
     console.error('Error updating product:', error);
@@ -279,6 +299,16 @@ router.patch('/:id/toggle-availability', requireAuth, (req, res) => {
     db.prepare('UPDATE products SET is_available = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(newStatus, Number(id));
 
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'PRODUCT_AVAILABILITY_TOGGLED',
+      entityType: 'PRODUCT',
+      entityId: id,
+      details: `Changed availability to ${newStatus ? 'In Stock' : 'Out of Stock'}`,
+      req
+    });
+
     res.json({ id: Number(id), is_available: newStatus });
   } catch (error) {
     console.error('Error toggling availability:', error);
@@ -296,6 +326,16 @@ router.delete('/:id', requireAuth, (req, res) => {
     }
 
     db.prepare('DELETE FROM products WHERE id = ?').run(Number(id));
+
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'PRODUCT_DELETED',
+      entityType: 'PRODUCT',
+      entityId: id,
+      details: `Deleted menu item "${existing.name}"`,
+      req
+    });
 
     res.json({ message: `Product "${existing.name}" deleted successfully`, id: Number(id) });
   } catch (error) {

@@ -43,7 +43,7 @@ export default function MenuCard({ item, mode = 'grid' }) {
         {/* Center Details */}
         <div className="flex-1 min-w-0 pr-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] group-hover:text-[#6D4C41] truncate">
+            <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] truncate">
               {item.name}
             </h3>
             {isAvailable ? (
@@ -54,21 +54,21 @@ export default function MenuCard({ item, mode = 'grid' }) {
           </div>
 
           {item.description && (
-            <p className="text-[11px] xs:text-xs text-[#795548] leading-tight line-clamp-1 mt-0.5 font-light">
+            <p className="text-[11px] xs:text-xs text-[#795548] dark:text-[#D69E76] leading-tight line-clamp-1 mt-0.5 font-light">
               {item.description}
             </p>
           )}
           {item.description_am && (
-            <p className="text-[11px] xs:text-xs text-[#5D4037] leading-tight line-clamp-1 mt-0.5 font-normal">
+            <p className="text-[11px] xs:text-xs text-[#5D4037] dark:text-[#A89080] leading-tight line-clamp-1 mt-0.5 font-normal">
               {item.description_am}
             </p>
           )}
 
           <div className="flex items-baseline gap-1 mt-1.5">
-            <span className="font-serif text-base xs:text-lg font-black text-[#3E2723]">
+            <span className="font-serif text-base xs:text-lg font-black text-[#3E2723] dark:text-[#D4AF37]">
               {item.price_etb}
             </span>
-            <span className="text-[10px] font-bold text-[#8D6E63]">
+            <span className="text-[10px] font-bold text-[#8D6E63] dark:text-[#A89080]">
               ETB
             </span>
           </div>
@@ -89,10 +89,10 @@ export default function MenuCard({ item, mode = 'grid' }) {
       tabIndex={0}
       onClick={() => setSelectedProduct(item)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedProduct(item); }}
-      className="group relative bg-white rounded-2xl overflow-hidden border border-[#E8DFC8] shadow-xs hover:shadow-md hover:border-[#BCAAA4] active:scale-[0.98] transition-all duration-200 flex flex-col cursor-pointer"
+      className="group relative bg-white dark:bg-[#1F1009] rounded-2xl overflow-hidden border border-[#E8DFC8] dark:border-[#3A2012] shadow-xs hover:shadow-md hover:border-[#BCAAA4] dark:hover:border-[#D4AF37]/50 active:scale-[0.98] transition-all duration-200 flex flex-col cursor-pointer"
     >
       {/* Picture */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FAF6F0]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FAF6F0] dark:bg-[#2A170D]">
         {item.image_url ? (
           <img
             src={item.image_url}
@@ -111,12 +111,12 @@ export default function MenuCard({ item, mode = 'grid' }) {
         {/* Availability Badge */}
         <div className="absolute top-2 right-2 z-10">
           {isAvailable ? (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50/95 text-emerald-800 border border-emerald-200 shadow-2xs backdrop-blur-xs">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50/95 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs backdrop-blur-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Available</span>
             </span>
           ) : (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50/95 text-rose-800 border border-rose-200 shadow-2xs backdrop-blur-xs">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50/95 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shadow-2xs backdrop-blur-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
               <span>Out of stock</span>
             </span>
@@ -127,32 +127,32 @@ export default function MenuCard({ item, mode = 'grid' }) {
       {/* Content Details */}
       <div className="p-3 xs:p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
         <div>
-          <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] group-hover:text-[#6D4C41] transition-colors line-clamp-1">
+          <h3 className="font-serif text-sm xs:text-base font-bold text-[#2C1810] dark:text-[#FAF4ED] group-hover:text-[#6D4C41] dark:group-hover:text-[#D4AF37] transition-colors line-clamp-1">
             {item.name}
           </h3>
 
           {item.description && (
-            <p className="text-[11px] xs:text-xs text-[#795548] leading-relaxed line-clamp-2 mt-0.5 font-light">
+            <p className="text-[11px] xs:text-xs text-[#795548] dark:text-[#D69E76] leading-relaxed line-clamp-2 mt-0.5 font-light">
               {item.description}
             </p>
           )}
           {item.description_am && (
-            <p className="text-[11px] xs:text-xs text-[#8D6E63] leading-relaxed line-clamp-2 mt-0.5 font-normal">
+            <p className="text-[11px] xs:text-xs text-[#8D6E63] dark:text-[#A89080] leading-relaxed line-clamp-2 mt-0.5 font-normal">
               {item.description_am}
             </p>
           )}
         </div>
 
         {/* Price Row in ETB */}
-        <div className="pt-2 border-t border-[#F5EBE1] flex items-center justify-between">
-          <span className="text-[10px] text-[#A1887F] uppercase tracking-wider font-semibold">
+        <div className="pt-2 border-t border-[#F5EBE1] dark:border-[#3A2012] flex items-center justify-between">
+          <span className="text-[10px] text-[#A1887F] dark:text-[#8D6E63] uppercase tracking-wider font-semibold">
             Price
           </span>
           <div className="flex items-baseline gap-1">
-            <span className="font-serif text-base xs:text-lg sm:text-xl font-extrabold text-[#3E2723]">
+            <span className="font-serif text-base xs:text-lg sm:text-xl font-extrabold text-[#3E2723] dark:text-[#D4AF37]">
               {item.price_etb}
             </span>
-            <span className="text-[10px] xs:text-xs font-bold text-[#8D6E63]">
+            <span className="text-[10px] xs:text-xs font-bold text-[#8D6E63] dark:text-[#A89080]">
               ETB
             </span>
           </div>

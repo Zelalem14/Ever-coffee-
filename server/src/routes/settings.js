@@ -1,6 +1,6 @@
 import express from 'express';
-import { db } from '../db.js';
-import { requireAuth } from '../middleware/auth.js';
+import { db, logAudit } from '../db.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 });
 
 // PUT update settings (admin only)
-router.put('/', requireAuth, (req, res) => {
+router.put('/', requireAuth, requireRole(['admin', 'manager']), (req, res) => {
   const { coffee_house_name, welcome_message, welcome_message_am, logo_url, phone, address } = req.body;
 
   try {
@@ -38,6 +38,14 @@ router.put('/', requireAuth, (req, res) => {
     const settings = {};
     rows.forEach(r => {
       settings[r.key] = r.value;
+    });
+
+    logAudit({
+      userId: req.user.id,
+      username: req.user.username,
+      action: 'SETTINGS_UPDATED',
+      details: `Updated brand name: "${settings.coffee_house_name || ''}", phone: "${settings.phone || ''}"`,
+      req
     });
 
     res.json({ message: 'Coffee house settings updated successfully', settings });

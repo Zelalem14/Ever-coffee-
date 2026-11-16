@@ -22,6 +22,17 @@ export const api = {
     return data;
   },
 
+  async logout() {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+    } catch (e) {
+      // ignore network errors on logout
+    }
+  },
+
   async verifyAuth() {
     const res = await fetch(`${API_BASE}/auth/verify`, {
       headers: getAuthHeaders()
@@ -197,6 +208,75 @@ export const api = {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to seed database');
+    return data;
+  },
+
+  // Users Management (Admin)
+  async getUsers() {
+    const res = await fetch(`${API_BASE}/users`, {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch users');
+    return data;
+  },
+
+  async createUser(payload) {
+    const res = await fetch(`${API_BASE}/users`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create user');
+    return data;
+  },
+
+  async updateUser(id, payload) {
+    const res = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update user');
+    return data;
+  },
+
+  async deleteUser(id) {
+    const res = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+    return data;
+  },
+
+  // Audit Logs (Security Monitoring)
+  async getAuditLogs(params = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        query.append(key, val);
+      }
+    });
+
+    const res = await fetch(`${API_BASE}/logs?${query.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch audit logs');
+    return data;
+  },
+
+  async pruneAuditLogs() {
+    const res = await fetch(`${API_BASE}/logs/prune`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to prune audit logs');
     return data;
   }
 };
