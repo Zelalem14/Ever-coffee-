@@ -51,6 +51,9 @@ export default function ProductDetailModal() {
               <img
                 src={selectedProduct.image_url}
                 alt={selectedProduct.name}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
                 className={`w-full h-full object-cover object-center ${
                   !isAvailable ? 'opacity-50 grayscale' : ''
                 }`}

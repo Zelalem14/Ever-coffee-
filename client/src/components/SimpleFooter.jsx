@@ -1,11 +1,9 @@
 import React from 'react';
-import { Coffee, Lock, Shield, Phone, MapPin, QrCode } from 'lucide-react';
+import { Coffee, Phone, MapPin, QrCode } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
-import { useAuth } from '../context/AuthContext';
 
 export default function SimpleFooter() {
   const { settings, setIsMobileQrOpen } = useMenu();
-  const { isAuthenticated, setShowLoginModal, setIsAdminOpen, isAdminOpen } = useAuth();
   const phoneDisplay = settings.phone || '0970414440';
   const houseName = settings.coffee_house_name || 'Ever Coffee House';
 
@@ -39,29 +37,11 @@ export default function SimpleFooter() {
         <div className="pt-1 flex flex-wrap items-center justify-center gap-2.5">
           <button
             onClick={() => setIsMobileQrOpen(true)}
-            className="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#2A170D] text-[#5D4037] dark:text-[#FAF4ED] hover:bg-[#EFEBE9] border border-[#D7CCC8] dark:border-[#3A2012] active:scale-95 transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#2A170D] text-[#5D4037] dark:text-[#FAF4ED] hover:bg-[#EFEBE9] border border-[#D7CCC8] dark:border-[#3A2012] active:scale-95 transition-all shadow-2xs"
           >
             <QrCode className="w-4 h-4 text-[#795548] dark:text-[#D4AF37]" />
             <span>Open on Phone (QR)</span>
           </button>
-
-          {isAuthenticated ? (
-            <button
-              onClick={() => setIsAdminOpen(!isAdminOpen)}
-              className="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#4E342E] dark:bg-[#D4AF37] text-white dark:text-[#120804] hover:bg-[#3E2723] active:scale-95 transition-all shadow-xs"
-            >
-              <Shield className="w-4 h-4 text-[#FFE082] dark:text-[#120804]" />
-              <span>{isAdminOpen ? 'Back to Customer Menu' : 'Open Admin Dashboard'}</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="inline-flex items-center gap-1 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-medium text-[#8D6E63] dark:text-[#D69E76] hover:text-[#3E2723] dark:hover:text-[#FAF4ED] hover:bg-[#EFEBE9]/60 dark:hover:bg-[#2A170D] active:scale-95 transition-all"
-            >
-              <Lock className="w-3.5 h-3.5 text-[#A1887F] dark:text-[#D69E76]" />
-              <span>Admin Dashboard</span>
-            </button>
-          )}
         </div>
 
         <p className="text-[10px] text-[#BCAAA4] dark:text-[#7A6050] pt-2">

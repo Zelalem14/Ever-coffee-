@@ -7,8 +7,8 @@ export default function AdminLoginModal() {
   const { showLoginModal, setShowLoginModal, login } = useAuth();
   const { addToast } = useToast();
 
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,12 +34,6 @@ export default function AdminLoginModal() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const autofillDemo = () => {
-    setUsername('admin');
-    setPassword('admin123');
-    setError('');
   };
 
   return (
@@ -102,10 +96,10 @@ export default function AdminLoginModal() {
               <input
                 type="text"
                 required
-                autoComplete="username"
+                autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                placeholder="Enter username"
                 className="w-full min-h-[44px] pl-10 pr-3 py-2 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#1F1009] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               />
             </div>
@@ -120,10 +114,10 @@ export default function AdminLoginModal() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
-                autoComplete="current-password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="password"
+                placeholder="Enter password"
                 className="w-full min-h-[44px] pl-10 pr-10 py-2 rounded-xl border border-[#D7CCC8] dark:border-[#3A2012] bg-white dark:bg-[#1F1009] text-base sm:text-sm text-[#2C1810] dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
               />
               <button
@@ -136,22 +130,10 @@ export default function AdminLoginModal() {
             </div>
           </div>
 
-          {/* Demo shortcut with touch target */}
-          <div className="p-2.5 rounded-xl bg-[#FAF6F0] dark:bg-[#1F1009] border border-[#E8DFC8] dark:border-[#3A2012] flex items-center justify-between text-xs text-[#5D4037] dark:text-[#D69E76]">
-            <span className="font-mono text-xs text-[#8D6E63] dark:text-[#A89080]">admin / admin123</span>
-            <button
-              type="button"
-              onClick={autofillDemo}
-              className="min-h-[36px] px-3 py-1 rounded-lg bg-white dark:bg-[#2A170D] border border-[#D7CCC8] dark:border-[#3A2012] hover:bg-[#EFEBE9] active:scale-95 text-[#3E2723] dark:text-[#FAF4ED] text-xs font-semibold shadow-2xs"
-            >
-              Fill Demo
-            </button>
-          </div>
-
           <button
             type="submit"
             disabled={loading || isLocked}
-            className="w-full min-h-[48px] py-3 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xs flex items-center justify-center gap-2"
+            className="w-full min-h-[48px] py-3 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xs flex items-center justify-center gap-2 mt-2"
           >
             {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
           </button>

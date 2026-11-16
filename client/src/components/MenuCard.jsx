@@ -23,6 +23,9 @@ export default function MenuCard({ item, mode = 'grid' }) {
               src={item.image_url}
               alt={item.name}
               loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
               className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300 ${
                 !isAvailable ? 'opacity-50 grayscale' : ''
               }`}
@@ -98,6 +101,9 @@ export default function MenuCard({ item, mode = 'grid' }) {
             src={item.image_url}
             alt={item.name}
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
             className={`w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300 ${
               !isAvailable ? 'opacity-60 grayscale' : ''
             }`}
