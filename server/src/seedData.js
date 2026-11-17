@@ -241,18 +241,5 @@ export const initialProducts = [
     is_popular: 0,
     is_new: 0,
     dietary_tags: "Fresh Bakery"
-  },
-  {
-    category_slug: "foods-snacks",
-    name: "Salted Peanuts",
-    description: "Crispy pan-roasted Ethiopian peanuts seasoned with sea salt.",
-    description_am: "በጥሩ ሁኔታ የተቆላ እና ትንሽ ጨው ያለው የለውዝ (ኦቾሎኒ)።",
-    price_etb: 30,
-    image_url: "https://images.unsplash.com/photo-1525253086316-d0c936c81468?auto=format&fit=crop&w=800&q=80",
-    is_available: 1,
-    is_featured: 0,
-    is_popular: 1,
-    is_new: 0,
-    dietary_tags: "Roasted Peanuts"
   }
 ];

@@ -16,7 +16,7 @@ A modern, luxurious, and fully responsive digital menu website crafted for an ar
   - **B. Tea (Shai)**: Ethiopian Traditional Tea (Shai), Black Tea, Green Tea, Lemon Tea, Ginger Tea, Cinnamon Tea, Milk Tea, Special Spiced Tea.
   - **C. Cold Drinks & Juices**: Fresh Mango Juice, Avocado Juice, Papaya Juice, Pineapple Juice, Watermelon Juice, Mixed Fruit Layered Spris, Coca-Cola, Sprite, Fanta, Pepsi, Soft Drinks, Bottled Natural Spring Water, Sparkling Water.
   - **D. Biscuits & Cookies**: Butter Biscuits, Chocolate Cookies, Cream Biscuits, Digestive Biscuits, Wafer Biscuits, Oreo, Local Biscuits, Assorted Cookies.
-  - **E. Chips & Snacks**: Sun Chips, Cheetos, Potato Chips, Pringles, Doritos, Popcorn, Corn Snacks, Salted Peanuts, Mixed Nuts.
+  - **E. Chips & Snacks**: Sun Chips, Cheetos, Potato Chips, Pringles, Doritos, Popcorn, Corn Snacks, Mixed Nuts.
   - **F. Sweets & Bakery**: Chocolate Cake, Vanilla Cake, Doughnuts, Muffins, Croissants, Cupcakes, Brownies, Lollipops, Chocolate Bars, Candy, Wafers, Other Sweet Snacks.
 - **Real-Time Live Search**: Instantly searches by drink name, description, or ingredients.
 - **Filter Pills**: All, Popular (🔥), Featured (✨), New Arrivals (⭐), Under 100 ETB (🏷️), In Stock Only (🟢).
