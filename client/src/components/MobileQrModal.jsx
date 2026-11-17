@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
-  Smartphone, 
   Wifi, 
   Copy, 
   Check, 
@@ -9,42 +8,27 @@ import {
   Download, 
   Camera, 
   QrCode, 
-  UtensilsCrossed, 
-  Coffee,
-  CheckCircle2,
   ExternalLink,
-  Sparkles,
-  ArrowRight
+  Sparkles
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { api } from '../api/api';
 import { useMenu } from '../context/MenuContext';
 import QrScanner from './QrScanner';
 
-export default function MobileQrModal({ isOpen, onClose, initialProductId = null }) {
-  const { products, setSelectedProduct } = useMenu();
+export default function MobileQrModal({ isOpen, onClose }) {
+  const { settings } = useMenu();
 
   const [activeTab, setActiveTab] = useState('generate'); // 'generate' or 'scan'
-  const [targetType, setTargetType] = useState('menu'); // 'menu' or 'item'
-  const [selectedProductId, setSelectedProductId] = useState('');
-  
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [baseUrl, setBaseUrl] = useState('');
   const [clientQrDataUrl, setClientQrDataUrl] = useState('');
-  const [scannedProduct, setScannedProduct] = useState(null);
+  const [scannedUrl, setScannedUrl] = useState('');
 
   // Determine the best base URL (public origin on web, or Wi-Fi IP on local network)
   useEffect(() => {
     if (!isOpen) return;
-
-    if (initialProductId) {
-      setTargetType('item');
-      setSelectedProductId(String(initialProductId));
-    } else {
-      setTargetType('menu');
-      setSelectedProductId(products[0]?.id ? String(products[0].id) : '');
-    }
 
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       setBaseUrl(window.location.origin);
@@ -61,22 +45,12 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
           setBaseUrl(window.location.origin);
         });
     }
-  }, [isOpen, initialProductId, products]);
+  }, [isOpen]);
 
-  // Compute final QR code target URL based on selection
+  // Compute final QR code target URL (points directly to Ever Coffee House digital menu)
   const currentTargetUrl = useMemo(() => {
-    const origin = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5050');
-    if (targetType === 'item' && selectedProductId) {
-      return `${origin}/?item=${selectedProductId}`;
-    }
-    return origin;
-  }, [baseUrl, targetType, selectedProductId]);
-
-  // Selected product object if targeting a specific item
-  const selectedProduct = useMemo(() => {
-    if (targetType !== 'item' || !selectedProductId) return null;
-    return products.find(p => p.id === Number(selectedProductId)) || null;
-  }, [products, targetType, selectedProductId]);
+    return baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5050');
+  }, [baseUrl]);
 
   // Generate high-resolution QR code preview on the client
   useEffect(() => {
@@ -118,12 +92,8 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
   };
 
   const handleShare = async () => {
-    const title = selectedProduct 
-      ? `${selectedProduct.name} | Ever Coffee House` 
-      : 'Ever Coffee House Digital Menu';
-    const text = selectedProduct 
-      ? `Check out ${selectedProduct.name} (${selectedProduct.price_etb} ETB) on the Ever Coffee House digital menu!`
-      : 'Browse fresh roasted coffee, drinks, and snacks at Ever Coffee House!';
+    const title = settings?.coffee_house_name || 'Ever Coffee House Digital Menu';
+    const text = 'Browse fresh roasted coffee, refreshing drinks, and delicious snacks at Ever Coffee House!';
 
     if (navigator.share) {
       try {
@@ -140,15 +110,13 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
     }
   };
 
-  // High-resolution PNG image download
+  // High-resolution 1024x1024 PNG image download for clear printing & display
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      const filename = selectedProduct
-        ? `ever-coffee-${selectedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-qr.png`
-        : 'ever-coffee-house-menu-qr.png';
+      const filename = 'ever-coffee-house-menu-qr.png';
 
-      // Generate ultra high-definition 1024x1024 PNG for crystal clear printing and display
+      // Generate ultra high-definition 1024x1024 PNG for crystal-clear printing and scanning
       const highResDataUrl = await QRCode.toDataURL(currentTargetUrl, {
         width: 1024,
         margin: 2,
@@ -168,10 +136,10 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
     } catch (err) {
       console.error('Direct download error, using server endpoint fallback:', err);
       // Server-assisted download fallback
-      const serverUrl = `/api/qr?url=${encodeURIComponent(currentTargetUrl)}&download=1&width=1024&filename=${encodeURIComponent(selectedProduct?.name || 'ever-coffee-menu')}`;
+      const serverUrl = `/api/qr?url=${encodeURIComponent(currentTargetUrl)}&download=1&width=1024&filename=ever-coffee-house-menu-qr`;
       const a = document.createElement('a');
       a.href = serverUrl;
-      a.download = 'ever-coffee-qr.png';
+      a.download = 'ever-coffee-house-menu-qr.png';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -182,26 +150,19 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
 
   // Handle scanned result from in-app camera or uploaded file
   const handleScanSuccess = (decodedText) => {
-    try {
-      // Check if scanned QR contains ?item=<id> or ?productId=<id>
-      let matchedItem = null;
-      if (decodedText.includes('item=') || decodedText.includes('productId=')) {
-        const urlObj = new URL(decodedText, window.location.origin);
-        const itemId = urlObj.searchParams.get('item') || urlObj.searchParams.get('productId');
-        if (itemId) {
-          matchedItem = products.find(p => p.id === Number(itemId));
-        }
-      }
-      setScannedProduct(matchedItem);
-    } catch (e) {
-      // not a full URL, text content
-    }
+    setScannedUrl(decodedText);
   };
 
-  const handleOpenScannedItem = () => {
-    if (scannedProduct) {
-      setSelectedProduct(scannedProduct);
-      onClose();
+  const handleOpenScannedUrl = () => {
+    if (!scannedUrl) return;
+    try {
+      if (scannedUrl.startsWith('http://') || scannedUrl.startsWith('https://')) {
+        window.location.href = scannedUrl;
+      } else {
+        window.location.href = `https://${scannedUrl}`;
+      }
+    } catch (e) {
+      // ignore
     }
   };
 
@@ -234,11 +195,11 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
             <QrCode className="w-6 h-6" />
           </div>
           <h3 className="font-serif text-xl sm:text-2xl font-bold text-zinc-900 dark:text-[#FAF4ED]">
-            QR Code Center
+            Menu QR Code
           </h3>
           <p className="text-xs text-zinc-500 dark:text-[#A89080] flex items-center justify-center gap-1.5 font-medium">
             <Wifi className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Ever Coffee House Digital Menu Access</span>
+            <span>Ever Coffee House Digital Menu</span>
           </p>
         </div>
 
@@ -270,71 +231,17 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
           </button>
         </div>
 
-        {/* ================= TAB 1: GENERATE & DOWNLOAD QR CODE ================= */}
+        {/* ================= TAB 1: VIEW & DOWNLOAD MENU QR CODE ================= */}
         {activeTab === 'generate' && (
           <div className="space-y-4 animate-fadeIn">
             
-            {/* Target Selector: Full Menu vs Specific Item */}
-            <div className="p-3 bg-zinc-50 dark:bg-[#120804] rounded-2xl border border-zinc-200 dark:border-[#3A2012] space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76]">
-                  QR Code For:
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setTargetType('menu')}
-                    className={`min-h-[30px] px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                      targetType === 'menu'
-                        ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
-                        : 'text-zinc-600 dark:text-[#A89080]'
-                    }`}
-                  >
-                    Full Menu
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTargetType('item')}
-                    className={`min-h-[30px] px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                      targetType === 'item'
-                        ? 'bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] shadow-2xs'
-                        : 'text-zinc-600 dark:text-[#A89080]'
-                    }`}
-                  >
-                    Specific Item
-                  </button>
-                </div>
-              </div>
-
-              {/* Product Picker (when targeting specific item) */}
-              {targetType === 'item' && (
-                <div>
-                  <label htmlFor="qr-product-select" className="block text-[11px] font-medium text-zinc-500 dark:text-[#A89080] mb-1">
-                    Select Database Menu Item:
-                  </label>
-                  <select
-                    id="qr-product-select"
-                    value={selectedProductId}
-                    onChange={(e) => setSelectedProductId(e.target.value)}
-                    className="w-full min-h-[42px] px-3 py-2 rounded-xl border border-zinc-200 dark:border-[#3A2012] bg-white dark:bg-[#1F1009] text-xs font-semibold text-zinc-900 dark:text-[#FAF4ED] focus:outline-none focus:ring-2 focus:ring-[#8D6E63]/30"
-                  >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {p.price_etb} ETB ({p.category_name || 'Item'})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-
             {/* High-Resolution QR Display */}
             <div className="flex flex-col items-center justify-center p-4 sm:p-5 bg-zinc-50 dark:bg-[#120804] rounded-2xl border border-zinc-200 dark:border-[#3A2012]">
-              <div className="bg-white p-3 rounded-2xl shadow-sm border border-zinc-200/80 max-w-[220px]">
+              <div className="bg-white p-3.5 rounded-2xl shadow-sm border border-zinc-200/80 max-w-[220px]">
                 {clientQrDataUrl ? (
                   <img
                     src={clientQrDataUrl}
-                    alt="High-resolution QR code"
+                    alt="Ever Coffee House Menu QR Code"
                     className="w-full aspect-square object-contain"
                   />
                 ) : (
@@ -346,18 +253,18 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
 
               <div className="text-center mt-3 space-y-0.5">
                 <span className="text-xs font-bold text-zinc-900 dark:text-[#FAF4ED]">
-                  {selectedProduct ? selectedProduct.name : 'Ever Coffee House Digital Menu'}
+                  {settings?.coffee_house_name || 'Ever Coffee House'} Digital Menu
                 </span>
                 <p className="text-[11px] text-zinc-500 dark:text-[#A89080]">
-                  Scan with any mobile phone camera (iPhone & Android)
+                  Scan with any smartphone camera (iPhone & Android)
                 </p>
               </div>
             </div>
 
-            {/* URL Display with Copy */}
+            {/* URL Display with Copy Button */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-zinc-700 dark:text-[#D69E76]">
-                Encoded Target URL:
+                Menu Website Link:
               </label>
               <div className="flex items-center gap-1.5 p-1.5 rounded-xl bg-zinc-50 dark:bg-[#120804] border border-zinc-200 dark:border-[#3A2012]">
                 <input
@@ -389,7 +296,7 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
             {/* Action Buttons: High-Res PNG Download & Share */}
             <div className="flex flex-col sm:flex-row gap-2 pt-1">
               
-              {/* Download PNG Button */}
+              {/* Download High-Resolution PNG Button */}
               <button
                 type="button"
                 onClick={handleDownload}
@@ -397,7 +304,7 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
                 className="flex-1 flex items-center justify-center gap-2 min-h-[46px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#3E2723] dark:bg-[#D4AF37] text-white dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 transition-all shadow-xs disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
-                <span>{downloading ? 'Preparing PNG...' : 'Download QR Code (PNG)'}</span>
+                <span>{downloading ? 'Preparing PNG...' : 'Download Menu QR (PNG)'}</span>
               </button>
 
               {/* Native Mobile Share Button */}
@@ -426,34 +333,28 @@ export default function MobileQrModal({ isOpen, onClose, initialProductId = null
               onClose={onClose} 
             />
 
-            {/* If a scanned code matched a database product */}
-            {scannedProduct && (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-3 animate-fadeIn">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-700 dark:text-emerald-300 shrink-0">
-                    <Coffee className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-400">
-                      Menu Item Found
-                    </span>
-                    <h4 className="font-serif font-bold text-base text-zinc-900 dark:text-[#FAF4ED] truncate">
-                      {scannedProduct.name}
-                    </h4>
-                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                      Price: {scannedProduct.price_etb} ETB
-                    </p>
-                  </div>
+            {/* Scanned Result Banner */}
+            {scannedUrl && (
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-[#120804] border border-zinc-200 dark:border-[#3A2012] space-y-3 animate-fadeIn">
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400">
+                    Scanned Content:
+                  </span>
+                  <p className="text-xs font-mono font-medium text-zinc-900 dark:text-[#FAF4ED] break-all p-2 bg-white dark:bg-[#1F1009] rounded-lg border border-zinc-200 dark:border-[#3A2012]">
+                    {scannedUrl}
+                  </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleOpenScannedItem}
-                  className="w-full flex items-center justify-center gap-2 min-h-[44px] py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-emerald-700 hover:bg-emerald-800 active:scale-95 transition-all shadow-xs"
-                >
-                  <span>View Details & Order</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {(scannedUrl.startsWith('http://') || scannedUrl.startsWith('https://')) && (
+                  <button
+                    type="button"
+                    onClick={handleOpenScannedUrl}
+                    className="w-full flex items-center justify-center gap-2 min-h-[44px] py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-95 transition-all shadow-xs"
+                  >
+                    <span>Open Scanned Link</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             )}
 

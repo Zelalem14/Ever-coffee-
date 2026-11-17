@@ -138,7 +138,7 @@ app.get('/api/network-info', (req, res) => {
   });
 });
 
-// Dynamic QR code generator supporting custom URLs, menu item IDs, high resolution, and PNG downloads
+// Dynamic QR code generator supporting system menu URL, high resolution, and PNG downloads
 app.get('/api/qr', async (req, res) => {
   try {
     // 1. Determine target URL / content
@@ -158,14 +158,7 @@ app.get('/api/qr', async (req, res) => {
         const ip = getNetworkIp();
         baseUrl = `http://${ip}:${PORT}`;
       }
-
-      // Check if a specific menu item ID was requested
-      if (req.query.item || req.query.productId) {
-        const itemId = encodeURIComponent(req.query.item || req.query.productId);
-        targetUrl = `${baseUrl}/?item=${itemId}`;
-      } else {
-        targetUrl = baseUrl;
-      }
+      targetUrl = baseUrl;
     }
 
     // 2. Formatting & Resolution options

@@ -1,25 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Edit3, Trash2, Coffee, CheckCircle2, XCircle, QrCode } from 'lucide-react';
+import { Plus, Search, Edit3, Trash2, Coffee, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../../api/api';
 import { useMenu } from '../../context/MenuContext';
 import { useToast } from '../../context/ToastContext';
 import { getImageUrl } from '../../utils/imageUrl';
 import ProductModal from './ProductModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
-import MobileQrModal from '../MobileQrModal';
 
 export default function AdminProductsTable() {
-  const { 
-    products, 
-    categories, 
-    refreshData, 
-    removeProduct, 
-    upsertProduct,
-    isMobileQrOpen,
-    setIsMobileQrOpen,
-    qrTargetProductId,
-    setQrTargetProductId
-  } = useMenu();
+  const { products, categories, refreshData, removeProduct, upsertProduct } = useMenu();
   const { addToast } = useToast();
 
   const [search, setSearch] = useState('');
@@ -264,19 +253,6 @@ export default function AdminProductsTable() {
                     <span>{isAvail ? 'In Stock' : 'Out of Stock'}</span>
                   </button>
 
-                  {/* QR Code Button */}
-                  <button
-                    onClick={() => {
-                      setQrTargetProductId(product.id);
-                      setIsMobileQrOpen(true);
-                    }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-[#2A170D] text-zinc-800 dark:text-[#FAF4ED] hover:bg-zinc-200 active:scale-95 transition-colors border border-zinc-200 dark:border-[#3A2012]"
-                    title="View & Download Item QR Code"
-                    aria-label={`QR Code for ${product.name}`}
-                  >
-                    <QrCode className="w-4 h-4 text-[#8D6E63] dark:text-[#D4AF37]" />
-                  </button>
-
                   {/* Edit Button */}
                   <button
                     onClick={() => handleOpenEdit(product)}
@@ -393,16 +369,6 @@ export default function AdminProductsTable() {
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => {
-                              setQrTargetProductId(product.id);
-                              setIsMobileQrOpen(true);
-                            }}
-                            className="p-2 rounded-lg bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] dark:hover:bg-[#3A2012] transition-colors"
-                            title="View & Download QR Code"
-                          >
-                            <QrCode className="w-4 h-4 text-[#8D6E63] dark:text-[#D4AF37]" />
-                          </button>
-                          <button
                             onClick={() => handleOpenEdit(product)}
                             className="p-2 rounded-lg bg-[#EFEBE9] dark:bg-[#2A170D] text-[#4E342E] dark:text-[#FAF4ED] hover:bg-[#D7CCC8] dark:hover:bg-[#3A2012] transition-colors"
                             title="Edit Menu Item"
@@ -447,16 +413,6 @@ export default function AdminProductsTable() {
           setProductToDelete(null);
         }}
         loading={deleting}
-      />
-
-      {/* Admin QR Code Center Modal */}
-      <MobileQrModal
-        isOpen={isMobileQrOpen}
-        onClose={() => {
-          setIsMobileQrOpen(false);
-          setQrTargetProductId(null);
-        }}
-        initialProductId={qrTargetProductId}
       />
 
     </div>

@@ -48,7 +48,6 @@ export function MenuProvider({ children }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'drinks', 'foods'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [isMobileQrOpen, setIsMobileQrOpen] = useState(false);
-  const [qrTargetProductId, setQrTargetProductId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all'); // 'all', 'drinks', 'foods-snacks', 'available'
   const [sortBy, setSortBy] = useState('default');
@@ -127,24 +126,6 @@ export function MenuProvider({ children }) {
   useEffect(() => {
     if (selectedProduct && !products.some((p) => p.id === selectedProduct.id)) {
       setSelectedProduct(null);
-    }
-  }, [products, selectedProduct]);
-
-  // Automatically open product detail if ?item=<id> is scanned from a QR code
-  useEffect(() => {
-    if (typeof window !== 'undefined' && products.length > 0 && !selectedProduct) {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const itemId = params.get('item') || params.get('productId');
-        if (itemId) {
-          const found = products.find((p) => p.id === Number(itemId));
-          if (found) {
-            setSelectedProduct(found);
-          }
-        }
-      } catch (e) {
-        // ignore
-      }
     }
   }, [products, selectedProduct]);
 
@@ -234,8 +215,6 @@ export function MenuProvider({ children }) {
     setViewMode,
     isMobileQrOpen,
     setIsMobileQrOpen,
-    qrTargetProductId,
-    setQrTargetProductId,
     searchQuery,
     setSearchQuery,
     selectedFilter,
@@ -260,7 +239,6 @@ export function MenuProvider({ children }) {
     activeTab,
     viewMode,
     isMobileQrOpen,
-    qrTargetProductId,
     searchQuery,
     selectedFilter,
     sortBy,
