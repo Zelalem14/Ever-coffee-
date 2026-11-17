@@ -88,15 +88,17 @@ export default function AdminLoginModal() {
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-login-username" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Username
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="admin-login-username"
+                name="username"
                 type="text"
                 required
-                autoComplete="off"
+                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter username"
@@ -106,15 +108,17 @@ export default function AdminLoginModal() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-login-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Password
             </label>
             <div className="relative">
               <Key className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="admin-login-password"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
-                autoComplete="off"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"

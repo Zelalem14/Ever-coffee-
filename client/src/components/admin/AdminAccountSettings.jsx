@@ -156,12 +156,14 @@ export default function AdminAccountSettings() {
           
           {/* New Username Field (Optional) */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-new-username" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               New Username (Optional)
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
+                id="admin-new-username"
+                name="newUsername"
                 type="text"
                 autoComplete="off"
                 value={newUsername}
@@ -178,12 +180,14 @@ export default function AdminAccountSettings() {
           {/* New Password & Confirmation */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+              <label htmlFor="admin-new-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
                 New Password (Optional)
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="admin-new-password"
+                  name="newPassword"
                   type={showNewPw ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={newPassword}
@@ -203,12 +207,14 @@ export default function AdminAccountSettings() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+              <label htmlFor="admin-confirm-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
                 Confirm New Password
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="admin-confirm-password"
+                  name="confirmPassword"
                   type={showConfirmPw ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={confirmPassword}
@@ -230,12 +236,14 @@ export default function AdminAccountSettings() {
 
           {/* Current Password Field (Required for security) */}
           <div className="pt-3 border-t border-zinc-200 dark:border-[#3A2012]">
-            <label className="block text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-400 mb-1">
+            <label htmlFor="admin-current-password" className="block text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-400 mb-1">
               Current Password (Required to verify authorization) *
             </label>
             <div className="relative">
               <Fingerprint className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
+                id="admin-current-password"
+                name="currentPassword"
                 type={showCurrentPw ? 'text' : 'password'}
                 required
                 autoComplete="current-password"

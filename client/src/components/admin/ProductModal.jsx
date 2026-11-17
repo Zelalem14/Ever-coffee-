@@ -28,30 +28,49 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
   const [error, setError] = useState('');
 
   const fileInputRef = useRef(null);
+  const prevIsOpenRef = useRef(false);
+  const prevEditIdRef = useRef(null);
 
+  // Initialize or reset form ONLY on modal open transition or switching the edited product
   useEffect(() => {
-    if (productToEdit) {
-      setName(productToEdit.name || '');
-      setCategoryId(productToEdit.category_id || (categories[0]?.id || ''));
-      setPriceEtb(productToEdit.price_etb?.toString() || '');
-      setDescription(productToEdit.description || '');
-      setDescriptionAm(productToEdit.description_am || '');
-      setImageUrl(productToEdit.image_url || '');
-      setIsAvailable(productToEdit.is_available === 1);
-    } else {
-      setName('');
-      setCategoryId(categories[0]?.id || '');
-      setPriceEtb('');
-      setDescription('');
-      setDescriptionAm('');
-      setImageUrl('');
-      setIsAvailable(true);
+    const isOpening = isOpen && !prevIsOpenRef.current;
+    const currentEditId = productToEdit?.id ?? 'NEW_PRODUCT';
+    const isSwitchingItem = isOpen && currentEditId !== prevEditIdRef.current;
+
+    if (isOpening || isSwitchingItem) {
+      if (productToEdit) {
+        setName(productToEdit.name || '');
+        setCategoryId(productToEdit.category_id != null ? String(productToEdit.category_id) : (categories[0]?.id ? String(categories[0].id) : ''));
+        setPriceEtb(productToEdit.price_etb != null ? String(productToEdit.price_etb) : '');
+        setDescription(productToEdit.description || '');
+        setDescriptionAm(productToEdit.description_am || '');
+        setImageUrl(productToEdit.image_url || '');
+        setIsAvailable(productToEdit.is_available === 1);
+      } else {
+        setName('');
+        setCategoryId(categories[0]?.id ? String(categories[0].id) : '');
+        setPriceEtb('');
+        setDescription('');
+        setDescriptionAm('');
+        setImageUrl('');
+        setIsAvailable(true);
+      }
+      setError('');
+      setUploadStatus('');
+      setLocalPreviewUrl('');
+      setDetectedFormat('');
     }
-    setError('');
-    setUploadStatus('');
-    setLocalPreviewUrl('');
-    setDetectedFormat('');
-  }, [productToEdit, isOpen, categories]);
+
+    prevIsOpenRef.current = isOpen;
+    prevEditIdRef.current = isOpen ? currentEditId : null;
+  }, [isOpen, productToEdit?.id]);
+
+  // If adding a new item and categories load asynchronously for the first time, only default categoryId if empty
+  useEffect(() => {
+    if (isOpen && !productToEdit && !categoryId && categories.length > 0) {
+      setCategoryId(String(categories[0].id));
+    }
+  }, [isOpen, productToEdit, categoryId, categories]);
 
   // Clean up any object URL when unmounting or switching previews
   useEffect(() => {
@@ -228,12 +247,15 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-item-name" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Item Name *
             </label>
             <input
+              id="admin-item-name"
+              name="itemName"
               type="text"
               required
+              autoComplete="off"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Buna, Macchiato, Sun Chips"
@@ -244,10 +266,12 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
           {/* Category & Price */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+              <label htmlFor="admin-item-category" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
                 Menu Section *
               </label>
               <select
+                id="admin-item-category"
+                name="categoryId"
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -263,11 +287,13 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+              <label htmlFor="admin-item-price" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
                 Price (ETB) *
               </label>
               <div className="relative">
                 <input
+                  id="admin-item-price"
+                  name="priceEtb"
                   type="number"
                   inputMode="decimal"
                   step="any"
@@ -287,10 +313,12 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-item-description" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Description (Optional)
             </label>
             <textarea
+              id="admin-item-description"
+              name="description"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -301,10 +329,12 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
 
           {/* Amharic Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
+            <label htmlFor="admin-item-description-am" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#D69E76] mb-1">
               Amharic Description (አማርኛ - Optional)
             </label>
             <textarea
+              id="admin-item-description-am"
+              name="descriptionAm"
               rows={2}
               value={descriptionAm}
               onChange={(e) => setDescriptionAm(e.target.value)}
@@ -437,6 +467,8 @@ export default function ProductModal({ isOpen, onClose, productToEdit, onSaved }
               /* Direct URL Input Mode */
               <div className="space-y-2">
                 <input
+                  id="admin-item-image-url"
+                  name="imageUrl"
                   type="url"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}

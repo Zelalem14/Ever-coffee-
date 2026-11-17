@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Coffee, CupSoda, GlassWater, Cookie, Popcorn, Cake, Utensils, Sparkles } from 'lucide-react';
 import { api } from '../../api/api';
 import { useToast } from '../../context/ToastContext';
@@ -27,24 +27,37 @@ export default function CategoryModal({ isOpen, onClose, categoryToEdit, onSaved
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const prevIsOpenRef = useRef(false);
+  const prevEditIdRef = useRef(null);
+
+  // Initialize form state ONLY when opening the modal or switching to a different category
   useEffect(() => {
-    if (categoryToEdit) {
-      setName(categoryToEdit.name || '');
-      setSlug(categoryToEdit.slug || '');
-      setDescription(categoryToEdit.description || '');
-      setDescriptionAm(categoryToEdit.description_am || '');
-      setIcon(categoryToEdit.icon || 'Coffee');
-      setDisplayOrder(categoryToEdit.display_order?.toString() || '1');
-    } else {
-      setName('');
-      setSlug('');
-      setDescription('');
-      setDescriptionAm('');
-      setIcon('Coffee');
-      setDisplayOrder('1');
+    const isOpening = isOpen && !prevIsOpenRef.current;
+    const currentEditId = categoryToEdit?.id ?? 'NEW_CATEGORY';
+    const isSwitchingItem = isOpen && currentEditId !== prevEditIdRef.current;
+
+    if (isOpening || isSwitchingItem) {
+      if (categoryToEdit) {
+        setName(categoryToEdit.name || '');
+        setSlug(categoryToEdit.slug || '');
+        setDescription(categoryToEdit.description || '');
+        setDescriptionAm(categoryToEdit.description_am || '');
+        setIcon(categoryToEdit.icon || 'Coffee');
+        setDisplayOrder(categoryToEdit.display_order?.toString() || '1');
+      } else {
+        setName('');
+        setSlug('');
+        setDescription('');
+        setDescriptionAm('');
+        setIcon('Coffee');
+        setDisplayOrder('1');
+      }
+      setError('');
     }
-    setError('');
-  }, [categoryToEdit, isOpen]);
+
+    prevIsOpenRef.current = isOpen;
+    prevEditIdRef.current = isOpen ? currentEditId : null;
+  }, [isOpen, categoryToEdit?.id]);
 
   if (!isOpen) return null;
 

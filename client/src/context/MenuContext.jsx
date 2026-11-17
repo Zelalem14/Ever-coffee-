@@ -3,6 +3,34 @@ import { api } from '../api/api';
 
 const MenuContext = createContext();
 
+function areItemsIdentical(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return (
+    a.id === b.id &&
+    a.name === b.name &&
+    a.price_etb === b.price_etb &&
+    a.is_available === b.is_available &&
+    a.category_id === b.category_id &&
+    a.image_url === b.image_url &&
+    a.description === b.description &&
+    a.description_am === b.description_am &&
+    a.updated_at === b.updated_at
+  );
+}
+
+function areListsEqual(listA, listB) {
+  if (listA === listB) return true;
+  if (!Array.isArray(listA) || !Array.isArray(listB)) return false;
+  if (listA.length !== listB.length) return false;
+  for (let i = 0; i < listA.length; i++) {
+    if (!areItemsIdentical(listA[i], listB[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function MenuProvider({ children }) {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -34,10 +62,10 @@ export function MenuProvider({ children }) {
         api.getSettings().catch(() => null)
       ]);
       if (Array.isArray(catsData)) {
-        setCategories(catsData);
+        setCategories(prev => areListsEqual(prev, catsData) ? prev : catsData);
       }
       if (Array.isArray(prodsData)) {
-        setProducts(prodsData);
+        setProducts(prev => areListsEqual(prev, prodsData) ? prev : prodsData);
       }
       if (statsData) setStats(statsData);
       if (settingsData && Object.keys(settingsData).length > 0) {
@@ -72,10 +100,15 @@ export function MenuProvider({ children }) {
     loadAllData();
   }, [loadAllData]);
 
-  // Sync automatically when window receives focus (cross-tab / mobile resume sync)
+  // Sync automatically when window receives focus (throttled to at most once every 10 seconds)
   useEffect(() => {
+    let lastFocusSync = 0;
     const handleFocus = () => {
-      loadAllData();
+      const now = Date.now();
+      if (now - lastFocusSync > 10000) {
+        lastFocusSync = now;
+        loadAllData();
+      }
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
@@ -164,39 +197,59 @@ export function MenuProvider({ children }) {
     });
   }, [products, activeCategory, searchQuery, selectedFilter, sortBy, drinksProducts, foodProducts]);
 
+  const contextValue = useMemo(() => ({
+    categories,
+    products,
+    drinksProducts,
+    foodProducts,
+    filteredProducts,
+    stats,
+    settings,
+    updateSettings,
+    loading,
+    activeCategory,
+    setActiveCategory,
+    activeTab,
+    setActiveTab,
+    viewMode,
+    setViewMode,
+    isMobileQrOpen,
+    setIsMobileQrOpen,
+    searchQuery,
+    setSearchQuery,
+    selectedFilter,
+    setSelectedFilter,
+    sortBy,
+    setSortBy,
+    selectedProduct,
+    setSelectedProduct,
+    removeProduct,
+    upsertProduct,
+    refreshData: loadAllData
+  }), [
+    categories,
+    products,
+    drinksProducts,
+    foodProducts,
+    filteredProducts,
+    stats,
+    settings,
+    loading,
+    activeCategory,
+    activeTab,
+    viewMode,
+    isMobileQrOpen,
+    searchQuery,
+    selectedFilter,
+    sortBy,
+    selectedProduct,
+    removeProduct,
+    upsertProduct,
+    loadAllData
+  ]);
+
   return (
-    <MenuContext.Provider
-      value={{
-        categories,
-        products,
-        drinksProducts,
-        foodProducts,
-        filteredProducts,
-        stats,
-        settings,
-        updateSettings,
-        loading,
-        activeCategory,
-        setActiveCategory,
-        activeTab,
-        setActiveTab,
-        viewMode,
-        setViewMode,
-        isMobileQrOpen,
-        setIsMobileQrOpen,
-        searchQuery,
-        setSearchQuery,
-        selectedFilter,
-        setSelectedFilter,
-        sortBy,
-        setSortBy,
-        selectedProduct,
-        setSelectedProduct,
-        removeProduct,
-        upsertProduct,
-        refreshData: loadAllData
-      }}
-    >
+    <MenuContext.Provider value={contextValue}>
       {children}
     </MenuContext.Provider>
   );

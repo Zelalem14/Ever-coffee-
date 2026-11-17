@@ -115,6 +115,8 @@ export default function AdminProductsTable() {
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
+              id="admin-search-input"
+              name="adminSearch"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

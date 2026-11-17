@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, User, Mail, Shield, Lock, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
@@ -17,25 +17,38 @@ export default function UserModal({ isOpen, onClose, onSave, userToEdit = null }
 
   const isEditing = !!userToEdit;
 
+  const prevIsOpenRef = useRef(false);
+  const prevEditIdRef = useRef(null);
+
+  // Initialize form state ONLY when opening the modal or switching to a different user
   useEffect(() => {
-    if (userToEdit) {
-      setUsername(userToEdit.username || '');
-      setEmail(userToEdit.email || '');
-      setName(userToEdit.name || '');
-      setRole(userToEdit.role || 'staff');
-      setIsActive(userToEdit.is_active === 1);
-      setPassword('');
-    } else {
-      setUsername('');
-      setEmail('');
-      setName('');
-      setRole('staff');
-      setIsActive(true);
-      setPassword('');
+    const isOpening = isOpen && !prevIsOpenRef.current;
+    const currentEditId = userToEdit?.id ?? 'NEW_USER';
+    const isSwitchingItem = isOpen && currentEditId !== prevEditIdRef.current;
+
+    if (isOpening || isSwitchingItem) {
+      if (userToEdit) {
+        setUsername(userToEdit.username || '');
+        setEmail(userToEdit.email || '');
+        setName(userToEdit.name || '');
+        setRole(userToEdit.role || 'staff');
+        setIsActive(userToEdit.is_active === 1);
+        setPassword('');
+      } else {
+        setUsername('');
+        setEmail('');
+        setName('');
+        setRole('staff');
+        setIsActive(true);
+        setPassword('');
+      }
+      setError('');
+      setShowPassword(false);
     }
-    setError('');
-    setShowPassword(false);
-  }, [userToEdit, isOpen]);
+
+    prevIsOpenRef.current = isOpen;
+    prevEditIdRef.current = isOpen ? currentEditId : null;
+  }, [isOpen, userToEdit?.id]);
 
   if (!isOpen) return null;
 
