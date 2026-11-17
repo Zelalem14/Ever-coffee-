@@ -1,6 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { db, logAudit } from '../db.js';
+import { 
+  getAdminByUsername, 
+  getAdminById, 
+  updateAdminLastLogin, 
+  updateAdminCredentials, 
+  logAudit 
+} from '../db.js';
 import { generateToken, requireAuth } from '../middleware/auth.js';
 import { loginRateLimiter, recordLoginAttempt } from '../middleware/rateLimiter.js';
 
@@ -10,7 +16,7 @@ const router = express.Router();
  * POST /api/auth/login
  * Rate-limited login with failed attempt tracking and audit logging
  */
-router.post('/login', loginRateLimiter, (req, res) => {
+router.post('/login', loginRateLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -20,7 +26,7 @@ router.post('/login', loginRateLimiter, (req, res) => {
   const cleanUsername = username.trim();
 
   try {
-    const admin = db.prepare('SELECT * FROM admins WHERE username = ? COLLATE NOCASE').get(cleanUsername);
+    const admin = await getAdminByUsername(cleanUsername);
 
     if (!admin) {
       recordLoginAttempt({ req, username: cleanUsername, success: false });
@@ -60,7 +66,7 @@ router.post('/login', loginRateLimiter, (req, res) => {
 
     // Record success in rate limiter and update last_login
     recordLoginAttempt({ req, username: cleanUsername, success: true });
-    db.prepare("UPDATE admins SET last_login = datetime('now') WHERE id = ?").run(admin.id);
+    await updateAdminLastLogin(admin.id);
 
     logAudit({
       userId: admin.id,
@@ -91,7 +97,7 @@ router.post('/login', loginRateLimiter, (req, res) => {
     });
   } catch (error) {
     console.error('Login route error:', error);
-    res.status(500).json({ error: 'Authentication service error' });
+    res.status(500).json({ error: 'Authentication service error: ' + error.message });
   }
 });
 
@@ -99,12 +105,27 @@ router.post('/login', loginRateLimiter, (req, res) => {
  * GET /api/auth/verify
  * Validate current token and return fresh user state
  */
-router.get('/verify', requireAuth, (req, res) => {
-  const admin = db.prepare('SELECT id, username, email, name, role, is_active, last_login, created_at FROM admins WHERE id = ?').get(req.user.id);
-  if (!admin) {
-    return res.status(404).json({ error: 'User account not found' });
+router.get('/verify', requireAuth, async (req, res) => {
+  try {
+    const admin = await getAdminById(req.user.id);
+    if (!admin) {
+      return res.status(404).json({ error: 'User account not found' });
+    }
+    res.json({
+      user: {
+        id: admin.id,
+        username: admin.username,
+        email: admin.email || '',
+        name: admin.name,
+        role: admin.role,
+        is_active: admin.is_active,
+        last_login: admin.last_login,
+        created_at: admin.created_at
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to verify session' });
   }
-  res.json({ user: admin });
 });
 
 /**
@@ -125,9 +146,8 @@ router.post('/logout', requireAuth, (req, res) => {
 /**
  * PUT /api/auth/change-credentials
  * Allows authenticated administrator to change their own username and/or password.
- * Requires verifying the current password, entering new password twice, and validates uniqueness.
  */
-router.put('/change-credentials', requireAuth, (req, res) => {
+router.put('/change-credentials', requireAuth, async (req, res) => {
   const { currentPassword, newUsername, newPassword, confirmPassword } = req.body;
 
   if (!currentPassword) {
@@ -135,7 +155,7 @@ router.put('/change-credentials', requireAuth, (req, res) => {
   }
 
   try {
-    const admin = db.prepare('SELECT * FROM admins WHERE id = ?').get(req.user.id);
+    const admin = await getAdminById(req.user.id);
     if (!admin) {
       return res.status(404).json({ error: 'Administrator account not found' });
     }
@@ -164,10 +184,9 @@ router.put('/change-credentials', requireAuth, (req, res) => {
         return res.status(400).json({ error: 'New username must be at least 3 characters long' });
       }
 
-      // If different from current username
       if (cleanUsername.toLowerCase() !== admin.username.toLowerCase()) {
-        const existing = db.prepare('SELECT id FROM admins WHERE username = ? COLLATE NOCASE AND id != ?').get(cleanUsername, admin.id);
-        if (existing) {
+        const existing = await getAdminByUsername(cleanUsername);
+        if (existing && Number(existing.id) !== Number(admin.id)) {
           return res.status(400).json({ error: `Username "${cleanUsername}" is already taken by another account` });
         }
         updatedUsername = cleanUsername;
@@ -194,14 +213,11 @@ router.put('/change-credentials', requireAuth, (req, res) => {
       return res.status(400).json({ error: 'No changes provided. Please enter a new username or new password.' });
     }
 
-    // Execute update in database
-    db.prepare(`
-      UPDATE admins 
-      SET username = ?, password_hash = ?
-      WHERE id = ?
-    `).run(updatedUsername, updatedHash, admin.id);
+    const updated = await updateAdminCredentials(admin.id, {
+      username: updatedUsername,
+      passwordHash: updatedHash
+    });
 
-    // Record audit log
     logAudit({
       userId: admin.id,
       username: updatedUsername,
@@ -210,7 +226,6 @@ router.put('/change-credentials', requireAuth, (req, res) => {
       req
     });
 
-    // Generate fresh session token
     const newToken = generateToken({
       id: admin.id,
       username: updatedUsername,
@@ -231,46 +246,7 @@ router.put('/change-credentials', requireAuth, (req, res) => {
     });
   } catch (error) {
     console.error('Error changing credentials:', error);
-    res.status(500).json({ error: 'Failed to update credentials. Please try again.' });
-  }
-});
-
-/**
- * PUT /api/auth/profile
- * Allows updating display name and email
- */
-router.put('/profile', requireAuth, (req, res) => {
-  const { name, email } = req.body;
-  try {
-    const admin = db.prepare('SELECT * FROM admins WHERE id = ?').get(req.user.id);
-    if (!admin) return res.status(404).json({ error: 'User not found' });
-
-    const newName = name !== undefined ? name.trim() : admin.name;
-    const newEmail = email !== undefined ? email.trim() : admin.email;
-
-    db.prepare('UPDATE admins SET name = ?, email = ? WHERE id = ?').run(newName, newEmail, admin.id);
-
-    logAudit({
-      userId: admin.id,
-      username: admin.username,
-      action: 'PROFILE_UPDATED',
-      details: `Updated name="${newName}", email="${newEmail}"`,
-      req
-    });
-
-    res.json({
-      message: 'Profile updated successfully',
-      user: {
-        id: admin.id,
-        username: admin.username,
-        name: newName,
-        email: newEmail,
-        role: admin.role
-      }
-    });
-  } catch (err) {
-    console.error('Error updating profile:', err);
-    res.status(500).json({ error: 'Failed to update profile' });
+    res.status(500).json({ error: 'Failed to update credentials: ' + error.message });
   }
 });
 

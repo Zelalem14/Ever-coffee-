@@ -94,13 +94,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // Seed endpoint (re-seed or restore default menu items)
-app.post('/api/seed', (req, res) => {
+app.post('/api/seed', async (req, res) => {
   try {
-    seedDatabase(true);
+    await seedDatabase(true);
     res.json({ message: 'Database successfully restored and seeded for Ever Coffee House!' });
   } catch (error) {
     console.error('Error seeding database:', error);
-    res.status(500).json({ error: 'Failed to seed database' });
+    res.status(500).json({ error: 'Failed to seed database: ' + error.message });
   }
 });
 

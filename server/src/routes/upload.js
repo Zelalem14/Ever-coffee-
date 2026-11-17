@@ -1,21 +1,12 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { requireAuth } from '../middleware/auth.js';
 import { validateImageBuffer } from '../utils/imageValidator.js';
-import { saveUploadedImage, deleteUploadedImage } from '../db.js';
+import { uploadImageToStorage, deleteImageFromStorage } from '../utils/cloudStorage.js';
 
 const router = express.Router();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.resolve(__dirname, '../../uploads');
 
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Use memory storage for magic bytes inspection and dual disk/db storage
+// Use memory storage for magic bytes inspection and direct streaming to cloud/disk
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -23,7 +14,7 @@ const upload = multer({
   }
 }).single('image');
 
-// Wrapper middleware to intercept multer errors (e.g. file size limit) as clean JSON
+// Wrapper middleware to intercept multer errors as clean JSON
 const handleUpload = (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
@@ -40,8 +31,8 @@ const handleUpload = (req, res, next) => {
   });
 };
 
-// POST /api/upload - Upload and permanently store image
-router.post('/', requireAuth, handleUpload, (req, res) => {
+// POST /api/upload - Upload and store image permanently (Vercel Blob / Supabase Storage / Local)
+router.post('/', requireAuth, handleUpload, async (req, res) => {
   try {
     if (!req.file || !req.file.buffer) {
       return res.status(400).json({ error: 'No image file was provided for upload.' });
@@ -55,23 +46,18 @@ router.post('/', requireAuth, handleUpload, (req, res) => {
       });
     }
 
-    // Generate safe, unique filename using verified file extension
-    const ext = validation.ext || path.extname(req.file.originalname).toLowerCase() || '.jpg';
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const filename = `coffee-${uniqueSuffix}${ext}`;
-    const filePath = path.join(uploadsDir, filename);
+    // Upload to permanent cloud storage (Vercel Blob / Supabase) or local fallback
+    const result = await uploadImageToStorage(
+      req.file.buffer,
+      req.file.originalname,
+      validation.mime
+    );
 
-    // 1. Save to disk storage for fast local static serving
-    fs.writeFileSync(filePath, req.file.buffer);
-
-    // 2. Save permanently to SQLite database for survival across server restarts and ephemeral hosts
-    saveUploadedImage(filename, validation.mime, req.file.buffer);
-
-    const fileUrl = `/uploads/${filename}`;
     return res.status(200).json({
       message: 'Image uploaded successfully',
-      url: fileUrl,
-      filename,
+      url: result.url,
+      filename: result.filename,
+      provider: result.provider,
       mime_type: validation.mime,
       size: req.file.size
     });
@@ -83,21 +69,11 @@ router.post('/', requireAuth, handleUpload, (req, res) => {
   }
 });
 
-// DELETE /api/upload/:filename - Delete uploaded image from disk and database
-router.delete('/:filename', requireAuth, (req, res) => {
+// DELETE /api/upload/:filename - Delete uploaded image
+router.delete('/:filename', requireAuth, async (req, res) => {
   try {
-    const filename = path.basename(req.params.filename);
-    const filePath = path.join(uploadsDir, filename);
-
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-      } catch (e) {
-        console.warn('Could not remove file from disk:', e.message);
-      }
-    }
-
-    deleteUploadedImage(filename);
+    const filename = req.params.filename;
+    await deleteImageFromStorage(`/uploads/${filename}`);
     return res.json({ message: 'Image deleted successfully' });
   } catch (err) {
     console.error('Delete image error:', err);

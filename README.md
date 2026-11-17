@@ -89,6 +89,33 @@ npm test
 
 ---
 
+## ☁️ Vercel Deployment & Permanent Cloud Storage (Supabase & Vercel Blob)
+
+Because Vercel Serverless Functions use ephemeral, read-only containers, menu changes and file uploads cannot be saved to the container filesystem. The project includes full cloud integration with **Supabase PostgreSQL** and **Vercel Blob Storage**.
+
+### Step 1: Set up Supabase PostgreSQL
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Go to **SQL Editor** in your Supabase dashboard and run the script located at `supabase-schema.sql`. This will automatically create all tables, indexes, RLS policies, and seed the initial Ever Coffee House menu and default administrator.
+3. In **Project Settings -> API**, copy:
+   - `Project URL` -> `SUPABASE_URL`
+   - `service_role secret` -> `SUPABASE_SERVICE_ROLE_KEY`
+
+### Step 2: Set up Vercel Blob Storage (for Permanent Image Uploads)
+1. In your Vercel Project Dashboard, navigate to **Storage -> Create Database / Store -> Blob**.
+2. Connect it to your project. Vercel will automatically configure `BLOB_READ_WRITE_TOKEN`.
+
+### Step 3: Configure Environment Variables in Vercel
+In **Vercel Dashboard -> Project Settings -> Environment Variables**, add:
+- `SUPABASE_URL`: Your Supabase Project URL
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase Service Role Secret Key
+- `BLOB_READ_WRITE_TOKEN`: Your Vercel Blob Read/Write Token
+- `JWT_SECRET`: A secure random secret string
+
+### Step 4: Deploy
+Redeploy your project on Vercel. Admin changes (add, edit, update, delete, stock toggle, image uploads) will now instantly persist to Supabase PostgreSQL and Vercel Blob and sync across all customer devices worldwide!
+
+---
+
 ## 🔐 Administrator Credentials
 
 - **Username**: `admin`

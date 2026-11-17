@@ -81,6 +81,14 @@ export function MenuProvider({ children }) {
     return () => window.removeEventListener('focus', handleFocus);
   }, [loadAllData]);
 
+  // Periodic background synchronization every 15 seconds so customer devices stay live
+  useEffect(() => {
+    const timer = setInterval(() => {
+      loadAllData();
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [loadAllData]);
+
   // Automatically close product detail modal if item was deleted
   useEffect(() => {
     if (selectedProduct && !products.some((p) => p.id === selectedProduct.id)) {

@@ -1,82 +1,23 @@
 import express from 'express';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { db, logAudit, deleteUploadedImage } from '../db.js';
+import { 
+  getAllProducts, 
+  getProductById, 
+  createProduct, 
+  updateProduct, 
+  deleteProduct, 
+  toggleProductAvailability,
+  getCategoryByIdOrSlug,
+  logAudit 
+} from '../db.js';
+import { deleteImageFromStorage } from '../utils/cloudStorage.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.resolve(__dirname, '../../uploads');
 
 // GET all products with dynamic filtering and search
-router.get('/', (req, res) => {
-  const { category, search, featured, popular, is_new, available, sort } = req.query;
-
+router.get('/', async (req, res) => {
   try {
-    let sql = `
-      SELECT 
-        p.*,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE 1=1
-    `;
-    const params = [];
-
-    // Filter by Category (can be id or slug)
-    if (category && category !== 'all') {
-      if (/^\d+$/.test(category)) {
-        sql += ` AND p.category_id = ?`;
-        params.push(Number(category));
-      } else {
-        sql += ` AND c.slug = ?`;
-        params.push(category);
-      }
-    }
-
-    // Filter by Search Query
-    if (search && search.trim()) {
-      sql += ` AND (p.name LIKE ? OR p.description LIKE ? OR p.description_am LIKE ? OR p.dietary_tags LIKE ?)`;
-      const queryPattern = `%${search.trim()}%`;
-      params.push(queryPattern, queryPattern, queryPattern, queryPattern);
-    }
-
-    // Filter by Featured
-    if (featured === '1' || featured === 'true') {
-      sql += ` AND p.is_featured = 1`;
-    }
-
-    // Filter by Popular
-    if (popular === '1' || popular === 'true') {
-      sql += ` AND p.is_popular = 1`;
-    }
-
-    // Filter by New arrivals
-    if (is_new === '1' || is_new === 'true') {
-      sql += ` AND p.is_new = 1`;
-    }
-
-    // Filter by Availability
-    if (available === '1' || available === 'true') {
-      sql += ` AND p.is_available = 1`;
-    } else if (available === '0' || available === 'false') {
-      sql += ` AND p.is_available = 0`;
-    }
-
-    // Sorting
-    if (sort === 'price-asc') {
-      sql += ` ORDER BY p.price_etb ASC`;
-    } else if (sort === 'price-desc') {
-      sql += ` ORDER BY p.price_etb DESC`;
-    } else if (sort === 'name') {
-      sql += ` ORDER BY p.name ASC`;
-    } else {
-      sql += ` ORDER BY c.display_order ASC, p.is_featured DESC, p.is_popular DESC, p.id ASC`;
-    }
-
-    const products = db.prepare(sql).all(...params);
+    const products = await getAllProducts(req.query);
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -85,23 +26,13 @@ router.get('/', (req, res) => {
 });
 
 // GET single product
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const product = db.prepare(`
-      SELECT 
-        p.*,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ?
-    `).get(Number(id));
-
+    const product = await getProductById(id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
     res.json(product);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -109,7 +40,7 @@ router.get('/:id', (req, res) => {
 });
 
 // POST create product
-router.post('/', requireAuth, (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   const {
     category_id,
     name,
@@ -137,42 +68,24 @@ router.post('/', requireAuth, (req, res) => {
   }
 
   try {
-    // Check if category exists
-    const category = db.prepare('SELECT id FROM categories WHERE id = ?').get(Number(category_id));
+    const category = await getCategoryByIdOrSlug(Number(category_id));
     if (!category) {
       return res.status(400).json({ error: 'Selected category does not exist' });
     }
 
-    const defaultImg = 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80';
-
-    const result = db.prepare(`
-      INSERT INTO products (
-        category_id, name, description, description_am, price_etb, image_url,
-        is_available, is_featured, is_popular, is_new, dietary_tags
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      Number(category_id),
-      name.trim(),
-      description?.trim() || '',
-      description_am?.trim() || '',
-      Number(price_etb),
-      image_url?.trim() || defaultImg,
-      is_available ? 1 : 0,
-      is_featured ? 1 : 0,
-      is_popular ? 1 : 0,
-      is_new ? 1 : 0,
-      dietary_tags?.trim() || ''
-    );
-
-    const created = db.prepare(`
-      SELECT 
-        p.*,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ?
-    `).get(result.lastInsertRowid);
+    const created = await createProduct({
+      category_id: Number(category_id),
+      name: name.trim(),
+      description: description?.trim() || '',
+      description_am: description_am?.trim() || '',
+      price_etb: Number(price_etb),
+      image_url: image_url?.trim() || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+      is_available: is_available ? 1 : 0,
+      is_featured: is_featured ? 1 : 0,
+      is_popular: is_popular ? 1 : 0,
+      is_new: is_new ? 1 : 0,
+      dietary_tags: dietary_tags?.trim() || ''
+    });
 
     logAudit({
       userId: req.user.id,
@@ -187,12 +100,12 @@ router.post('/', requireAuth, (req, res) => {
     res.status(201).json(created);
   } catch (error) {
     console.error('Error creating product:', error);
-    res.status(500).json({ error: 'Failed to create product' });
+    res.status(500).json({ error: 'Failed to create product: ' + error.message });
   }
 });
 
 // PUT update product
-router.put('/:id', requireAuth, (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   const {
     category_id,
@@ -209,84 +122,36 @@ router.put('/:id', requireAuth, (req, res) => {
   } = req.body;
 
   try {
-    const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(Number(id));
+    const existing = await getProductById(id);
     if (!existing) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    if (category_id) {
-      const category = db.prepare('SELECT id FROM categories WHERE id = ?').get(Number(category_id));
+    if (category_id !== undefined) {
+      const category = await getCategoryByIdOrSlug(Number(category_id));
       if (!category) {
         return res.status(400).json({ error: 'Selected category does not exist' });
       }
     }
 
-    const updatedCategoryId = category_id !== undefined ? Number(category_id) : existing.category_id;
-    const updatedName = name !== undefined ? name.trim() : existing.name;
-    const updatedDesc = description !== undefined ? description.trim() : existing.description;
-    const updatedDescAm = description_am !== undefined ? description_am.trim() : (existing.description_am || '');
-    const updatedPrice = price_etb !== undefined ? Number(price_etb) : existing.price_etb;
-    const updatedImage = image_url !== undefined ? image_url.trim() : existing.image_url;
-    const updatedAvailable = is_available !== undefined ? (is_available ? 1 : 0) : existing.is_available;
-    const updatedFeatured = is_featured !== undefined ? (is_featured ? 1 : 0) : existing.is_featured;
-    const updatedPopular = is_popular !== undefined ? (is_popular ? 1 : 0) : existing.is_popular;
-    const updatedNew = is_new !== undefined ? (is_new ? 1 : 0) : existing.is_new;
-    const updatedDietary = dietary_tags !== undefined ? dietary_tags.trim() : existing.dietary_tags;
-
-    db.prepare(`
-      UPDATE products
-      SET 
-        category_id = ?,
-        name = ?,
-        description = ?,
-        description_am = ?,
-        price_etb = ?,
-        image_url = ?,
-        is_available = ?,
-        is_featured = ?,
-        is_popular = ?,
-        is_new = ?,
-        dietary_tags = ?,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(
-      updatedCategoryId,
-      updatedName,
-      updatedDesc,
-      updatedDescAm,
-      updatedPrice,
-      updatedImage,
-      updatedAvailable,
-      updatedFeatured,
-      updatedPopular,
-      updatedNew,
-      updatedDietary,
-      Number(id)
-    );
-
-    // If previous image was an uploaded file and was replaced with a new image, clean up old file
-    if (existing.image_url && updatedImage && existing.image_url !== updatedImage && existing.image_url.startsWith('/uploads/')) {
-      try {
-        const oldFilename = path.basename(existing.image_url.split('?')[0]);
-        deleteUploadedImage(oldFilename);
-        const oldDisk = path.join(uploadsDir, oldFilename);
-        if (fs.existsSync(oldDisk)) {
-          fs.unlinkSync(oldDisk);
-        }
-      } catch (cleanErr) {
-        console.warn('Could not clean up replaced image:', cleanErr.message);
-      }
+    // If image has changed, remove the old one from cloud or local storage
+    if (existing.image_url && image_url && existing.image_url !== image_url.trim()) {
+      deleteImageFromStorage(existing.image_url).catch(e => console.warn('Old image prune notice:', e.message));
     }
 
-    const updated = db.prepare(`
-      SELECT 
-        p.*,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ?
-    `).get(Number(id));
+    const updated = await updateProduct(id, {
+      category_id: category_id !== undefined ? Number(category_id) : undefined,
+      name,
+      description,
+      description_am,
+      price_etb: price_etb !== undefined ? Number(price_etb) : undefined,
+      image_url,
+      is_available,
+      is_featured,
+      is_popular,
+      is_new,
+      dietary_tags
+    });
 
     logAudit({
       userId: req.user.id,
@@ -301,22 +166,18 @@ router.put('/:id', requireAuth, (req, res) => {
     res.json(updated);
   } catch (error) {
     console.error('Error updating product:', error);
-    res.status(500).json({ error: 'Failed to update product' });
+    res.status(500).json({ error: 'Failed to update product: ' + error.message });
   }
 });
 
 // PATCH toggle product availability quickly
-router.patch('/:id/toggle-availability', requireAuth, (req, res) => {
+router.patch('/:id/toggle-availability', requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
-    const existing = db.prepare('SELECT is_available FROM products WHERE id = ?').get(Number(id));
-    if (!existing) {
+    const updated = await toggleProductAvailability(id);
+    if (!updated) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
-    const newStatus = existing.is_available === 1 ? 0 : 1;
-    db.prepare('UPDATE products SET is_available = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      .run(newStatus, Number(id));
 
     logAudit({
       userId: req.user.id,
@@ -324,40 +185,31 @@ router.patch('/:id/toggle-availability', requireAuth, (req, res) => {
       action: 'PRODUCT_AVAILABILITY_TOGGLED',
       entityType: 'PRODUCT',
       entityId: id,
-      details: `Changed availability to ${newStatus ? 'In Stock' : 'Out of Stock'}`,
+      details: `Changed availability to ${updated.is_available === 1 ? 'In Stock' : 'Out of Stock'}`,
       req
     });
 
-    res.json({ id: Number(id), is_available: newStatus });
+    res.json({ id: updated.id, is_available: updated.is_available });
   } catch (error) {
     console.error('Error toggling availability:', error);
-    res.status(500).json({ error: 'Failed to toggle availability' });
+    res.status(500).json({ error: 'Failed to toggle availability: ' + error.message });
   }
 });
 
 // DELETE product
-router.delete('/:id', requireAuth, (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   try {
-    const existing = db.prepare('SELECT id, name, image_url FROM products WHERE id = ?').get(Number(id));
+    const existing = await getProductById(id);
     if (!existing) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    db.prepare('DELETE FROM products WHERE id = ?').run(Number(id));
+    await deleteProduct(id);
 
-    // If deleted item had an uploaded image, clean up from database and disk storage
-    if (existing.image_url && existing.image_url.startsWith('/uploads/')) {
-      try {
-        const oldFilename = path.basename(existing.image_url.split('?')[0]);
-        deleteUploadedImage(oldFilename);
-        const oldDisk = path.join(uploadsDir, oldFilename);
-        if (fs.existsSync(oldDisk)) {
-          fs.unlinkSync(oldDisk);
-        }
-      } catch (cleanErr) {
-        console.warn('Could not clean up deleted product image:', cleanErr.message);
-      }
+    // Prune deleted product image from cloud or local storage
+    if (existing.image_url) {
+      deleteImageFromStorage(existing.image_url).catch(e => console.warn('Deleted product image prune notice:', e.message));
     }
 
     logAudit({
@@ -373,7 +225,7 @@ router.delete('/:id', requireAuth, (req, res) => {
     res.json({ message: `Product "${existing.name}" deleted successfully`, id: Number(id) });
   } catch (error) {
     console.error('Error deleting product:', error);
-    res.status(500).json({ error: 'Failed to delete product' });
+    res.status(500).json({ error: 'Failed to delete product: ' + error.message });
   }
 });
 

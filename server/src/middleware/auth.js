@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { db } from '../db.js';
+import { getAdminById } from '../db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ethiopian-premium-coffee-house-secret-key-2025';
 
 /**
  * Middleware: Verifies JWT token and ensures the user exists and is actively enabled in the DB.
  */
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized: Missing or invalid authentication token' });
@@ -16,8 +16,8 @@ export function requireAuth(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Verify user is still active in database
-    const user = db.prepare('SELECT id, username, email, name, role, is_active FROM admins WHERE id = ?').get(decoded.id);
+    // Verify user is still active in database (Supabase or SQLite)
+    const user = await getAdminById(decoded.id);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized: User account no longer exists' });
     }
