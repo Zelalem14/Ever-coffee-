@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, QrCode } from 'lucide-react';
 import { useMenu } from '../context/MenuContext';
 import { getImageUrl } from '../utils/imageUrl';
 
 export default function ProductDetailModal() {
-  const { selectedProduct, setSelectedProduct } = useMenu();
+  const { selectedProduct, setSelectedProduct, setIsMobileQrOpen, setQrTargetProductId } = useMenu();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -117,13 +117,29 @@ export default function ProductDetailModal() {
               </div>
             </div>
 
-            {/* Back Button */}
-            <button
-              onClick={() => setSelectedProduct(null)}
-              className="w-full min-h-[48px] py-3 rounded-2xl font-bold text-sm text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-[0.98] transition-all shadow-xs"
-            >
-              Back to Menu
-            </button>
+            {/* Action Buttons: Item QR Code & Back */}
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setQrTargetProductId(selectedProduct.id);
+                  setIsMobileQrOpen(true);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 min-h-[48px] py-3 rounded-2xl font-semibold text-xs sm:text-sm bg-zinc-100 dark:bg-[#2A170D] text-zinc-800 dark:text-[#FAF4ED] hover:bg-zinc-200 dark:hover:bg-[#3A2012] border border-zinc-200 dark:border-[#3A2012] active:scale-[0.98] transition-all"
+                title="View & Download QR code for this menu item"
+              >
+                <QrCode className="w-4 h-4 text-[#8D6E63] dark:text-[#D4AF37]" />
+                <span>Item QR Code</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedProduct(null)}
+                className="flex-1 min-h-[48px] py-3 rounded-2xl font-bold text-xs sm:text-sm text-white bg-[#3E2723] dark:bg-[#D4AF37] dark:text-[#120804] hover:bg-[#2C1810] dark:hover:bg-[#E9C053] active:scale-[0.98] transition-all shadow-xs"
+              >
+                Back to Menu
+              </button>
+            </div>
 
           </div>
         </div>

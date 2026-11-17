@@ -119,30 +119,95 @@ export function getNetworkIp() {
 // Network info endpoint for dynamic Wi-Fi IP and QR
 app.get('/api/network-info', (req, res) => {
   const ip = getNetworkIp();
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const forwardedHost = req.headers['x-forwarded-host'];
+  const host = forwardedHost || req.headers.host;
+  
+  let publicUrl = '';
+  if (host && !host.startsWith('localhost') && !host.startsWith('127.0.0.1')) {
+    const proto = forwardedProto || (req.secure ? 'https' : 'http');
+    publicUrl = `${proto}://${host}`;
+  }
+
   res.json({
     ip,
     port: PORT,
     wifi_url: `http://${ip}:${PORT}`,
-    local_url: `http://localhost:${PORT}`
+    local_url: `http://localhost:${PORT}`,
+    public_url: publicUrl || `http://${ip}:${PORT}`
   });
 });
 
-// Dynamic QR code generator
+// Dynamic QR code generator supporting custom URLs, menu item IDs, high resolution, and PNG downloads
 app.get('/api/qr', async (req, res) => {
   try {
-    const ip = getNetworkIp();
-    const targetUrl = `http://${ip}:${PORT}`;
+    // 1. Determine target URL / content
+    let targetUrl = req.query.url || req.query.text || req.query.data;
+
+    if (!targetUrl) {
+      // Determine base URL dynamically from request headers or network IP
+      const forwardedProto = req.headers['x-forwarded-proto'];
+      const forwardedHost = req.headers['x-forwarded-host'];
+      const host = forwardedHost || req.headers.host;
+
+      let baseUrl = '';
+      if (host && !host.startsWith('localhost') && !host.startsWith('127.0.0.1')) {
+        const proto = forwardedProto || (req.secure ? 'https' : 'http');
+        baseUrl = `${proto}://${host}`;
+      } else {
+        const ip = getNetworkIp();
+        baseUrl = `http://${ip}:${PORT}`;
+      }
+
+      // Check if a specific menu item ID was requested
+      if (req.query.item || req.query.productId) {
+        const itemId = encodeURIComponent(req.query.item || req.query.productId);
+        targetUrl = `${baseUrl}/?item=${itemId}`;
+      } else {
+        targetUrl = baseUrl;
+      }
+    }
+
+    // 2. Formatting & Resolution options
+    const width = Math.min(Math.max(parseInt(req.query.width, 10) || 512, 128), 2048);
+    const margin = parseInt(req.query.margin, 10) >= 0 ? parseInt(req.query.margin, 10) : 2;
+    const darkColor = req.query.dark || '#2C1810';
+    const lightColor = req.query.light || '#FFFFFF';
+    const isDownload = req.query.download === '1' || req.query.download === 'true';
+    const isDataUrl = req.query.format === 'dataurl' || req.query.format === 'json';
+
     const QRCode = (await import('qrcode')).default;
+
+    const qrOptions = {
+      width,
+      margin,
+      errorCorrectionLevel: 'H',
+      color: { dark: darkColor, light: lightColor }
+    };
+
+    if (isDataUrl) {
+      const dataUrl = await QRCode.toDataURL(targetUrl, qrOptions);
+      return res.json({
+        success: true,
+        targetUrl,
+        dataUrl,
+        width
+      });
+    }
+
+    if (isDownload) {
+      const filename = req.query.filename 
+        ? `${req.query.filename.replace(/[^a-zA-Z0-9_-]/g, '_')}.png`
+        : 'ever-coffee-house-qr.png';
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    }
+
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'no-cache');
-    await QRCode.toFileStream(res, targetUrl, {
-      width: 450,
-      margin: 2,
-      color: { dark: '#2C1810', light: '#FFFFFF' }
-    });
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    await QRCode.toFileStream(res, targetUrl, qrOptions);
   } catch (err) {
     console.error('Failed to generate dynamic QR:', err);
-    res.status(500).json({ error: 'Failed to generate QR code' });
+    res.status(500).json({ error: 'Failed to generate QR code', message: err.message });
   }
 });
 

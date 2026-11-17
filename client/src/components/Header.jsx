@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import MobileQrModal from './MobileQrModal';
 
 export default function Header() {
-  const { settings, isMobileQrOpen, setIsMobileQrOpen } = useMenu();
+  const { settings, isMobileQrOpen, setIsMobileQrOpen, qrTargetProductId, setQrTargetProductId } = useMenu();
   const { isAuthenticated, setShowLoginModal, isAdminOpen, setIsAdminOpen } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
@@ -143,7 +143,11 @@ export default function Header() {
       {/* Mobile QR Modal */}
       <MobileQrModal
         isOpen={isMobileQrOpen}
-        onClose={() => setIsMobileQrOpen(false)}
+        onClose={() => {
+          setIsMobileQrOpen(false);
+          setQrTargetProductId(null);
+        }}
+        initialProductId={qrTargetProductId}
       />
     </header>
   );
