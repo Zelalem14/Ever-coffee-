@@ -37,9 +37,9 @@ export default function AdminStats({ onNavigate }) {
   const foodsPct = 100 - drinksPct;
 
   // Price tiers
-  const tierBudget = products.filter(p => (p.price_etb || 0) < 40).length;
-  const tierMid = products.filter(p => (p.price_etb || 0) >= 40 && (p.price_etb || 0) <= 60).length;
-  const tierPremium = products.filter(p => (p.price_etb || 0) > 60).length;
+  const tierBudget = products.filter(p => (p.price_etb || 0) < 100).length;
+  const tierMid = products.filter(p => (p.price_etb || 0) >= 100 && (p.price_etb || 0) <= 150).length;
+  const tierPremium = products.filter(p => (p.price_etb || 0) > 150).length;
 
   const cards = [
     {
@@ -230,7 +230,7 @@ export default function AdminStats({ onNavigate }) {
           {/* 3 Tier Bar */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-[11px] text-[#795548] dark:text-[#D69E76]">
-              <span>Under 40 ETB (Everyday)</span>
+              <span>Under 100 ETB (Everyday)</span>
               <span className="font-bold">{tierBudget} items</span>
             </div>
             <div className="w-full h-2 rounded-full bg-[#EFEBE9] dark:bg-[#1F1009] overflow-hidden">
@@ -241,7 +241,7 @@ export default function AdminStats({ onNavigate }) {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-[#795548] dark:text-[#D69E76]">
-              <span>40 – 60 ETB (Standard)</span>
+              <span>100 – 150 ETB (Standard)</span>
               <span className="font-bold">{tierMid} items</span>
             </div>
             <div className="w-full h-2 rounded-full bg-[#EFEBE9] dark:bg-[#1F1009] overflow-hidden">
@@ -252,7 +252,7 @@ export default function AdminStats({ onNavigate }) {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-[#795548] dark:text-[#D69E76]">
-              <span>60+ ETB (Specialty)</span>
+              <span>150+ ETB (Specialty)</span>
               <span className="font-bold">{tierPremium} items</span>
             </div>
             <div className="w-full h-2 rounded-full bg-[#EFEBE9] dark:bg-[#1F1009] overflow-hidden">
