@@ -17,6 +17,7 @@ server/data/*.db-shm
 server/data/*.db-wal
 server/uploads/*
 !server/uploads/.gitkeep
+!server/uploads/bottled-water.jpg
 
 # Logs & OS files
 *.log

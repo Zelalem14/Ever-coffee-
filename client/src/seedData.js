@@ -126,7 +126,7 @@ export const initialProducts = [
     description: "Pure natural Ethiopian highland spring water (500ml).",
     description_am: "ንጹህ የታሸገ የተፈጥሮ የምንጭ ውሃ (500 ሚ.ሊ)።",
     price_etb: 50,
-    image_url: "https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=800&q=80",
+    image_url: "/uploads/bottled-water.jpg",
     is_available: 1,
     is_featured: 0,
     is_popular: 0,
